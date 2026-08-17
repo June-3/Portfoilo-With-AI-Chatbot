@@ -1,0 +1,14 @@
+[
+  {
+    "question": "介绍一下他的项目",
+    "answer": "他主要做 Web 全栈开发，项目包括：个人博客系统（Next.js + Tailwind CSS）、AI 知识库问答助手（DeepSeek + RAG）、电商后台管理系统（React + Node.js + PostgreSQL）、实时协作白板（React + WebSocket）等。你可以在「项目作品」页面查看完整列表与详情。"
+  },
+  {
+    "question": "他擅长什么技术",
+    "answer": "他擅长前端（React、Vue、Next.js、Tailwind CSS）和后端（Node.js、Express、PostgreSQL、Redis），也熟悉 Python、AI 应用（DeepSeek API、RAG、LangChain），以及 Git、Docker、Figma 等工具。"
+  },
+  {
+    "question": "如何联系他",
+    "answer": "你可以通过邮箱 zhangsan@example.com 联系他，也可以访问他的 GitHub 和 LinkedIn（见首页「联系方式」区块）。如果想私聊或谈合作，可以点击聊天窗口里的「私聊申请」按钮。"
+  }
+]

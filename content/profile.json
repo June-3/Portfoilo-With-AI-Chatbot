@@ -1,0 +1,9 @@
+{
+  "name": "张三",
+  "title": "全栈开发工程师",
+  "headline": "热爱构建优雅、高效的 Web 应用，关注用户体验与工程质量。",
+  "avatar": "/content/images/avatar.svg",
+  "bio": "拥有 5 年全栈开发经验，专注于 React 和 Node.js。曾主导多个从 0 到 1 的产品开发，熟悉前后端协作、性能优化与工程化实践。",
+  "location": "上海",
+  "email": "zhangsan@example.com"
+}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, LogIn, Menu, X } from "lucide-react";
+import { Bot, CircleCheck, LogIn, Menu, User, X } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,7 @@ export default function Navbar() {
   const closeMobileMenu = useAppStore((s) => s.closeMobileMenu);
   const openChat = useAppStore((s) => s.openChat);
   const openLogin = useAppStore((s) => s.openLogin);
+  const user = useAppStore((s) => s.user);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur">
@@ -62,14 +63,26 @@ export default function Navbar() {
             AI 助手
           </button>
 
-          <button
-            type="button"
-            onClick={openLogin}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            <LogIn className="h-4 w-4" />
-            邮箱登录
-          </button>
+          {user.hasSubmittedRequest ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+              <CircleCheck className="h-4 w-4" />
+              已提交请求
+            </span>
+          ) : user.isLoggedIn ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted">
+              <User className="h-4 w-4" />
+              已登录
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={openLogin}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              <LogIn className="h-4 w-4" />
+              邮箱登录
+            </button>
+          )}
         </div>
 
         {/* 移动端汉堡按钮 */}
@@ -114,17 +127,29 @@ export default function Navbar() {
               <Bot className="h-4 w-4" />
               AI 助手
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                closeMobileMenu();
-                openLogin();
-              }}
-              className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium"
-            >
-              <LogIn className="h-4 w-4" />
-              邮箱登录
-            </button>
+            {user.hasSubmittedRequest ? (
+              <span className="flex w-full items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                <CircleCheck className="h-4 w-4" />
+                已提交请求
+              </span>
+            ) : user.isLoggedIn ? (
+              <span className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted">
+                <User className="h-4 w-4" />
+                已登录
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobileMenu();
+                  openLogin();
+                }}
+                className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium"
+              >
+                <LogIn className="h-4 w-4" />
+                邮箱登录
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -1,0 +1,7 @@
+[
+  { "category": "languages", "label": "编程语言", "items": ["JavaScript", "TypeScript", "Python"] },
+  { "category": "frontend", "label": "前端", "items": ["React", "Vue", "Next.js", "Tailwind CSS"] },
+  { "category": "backend", "label": "后端", "items": ["Node.js", "Express", "PostgreSQL", "Redis"] },
+  { "category": "ai", "label": "AI / 工具", "items": ["DeepSeek API", "LangChain", "RAG"] },
+  { "category": "tools", "label": "工具与协作", "items": ["Git", "Docker", "Figma"] }
+]
