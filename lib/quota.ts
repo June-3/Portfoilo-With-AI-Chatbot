@@ -1,16 +1,20 @@
+import { getSettings } from "@/lib/settings";
+
 /**
  * 每日 token 额度统计（内存实现）。
+ * Daily token quota tracking (in-memory implementation).
  *
- * 说明：这是里程碑 3 的临时实现。部署到 Vercel（serverless）后，内存状态在
- * 实例间不共享且会随实例回收而丢失；里程碑 4 将替换为 Upstash Redis 实现，
- * 届时额度、限流、黑名单都以 Redis 为准。
+ * 支持匿名与登录两种限额（后台可分别配置）。登录用户以邮箱为身份、匿名用户以
+ * localStorage 匿名 ID 为身份。
+ * Supports separate anonymous and signed-in limits (configurable in the admin).
+ * Signed-in users are keyed by email; anonymous users by their localStorage ID.
+ *
+ * 说明：内存实现为开发用；生产环境替换为 Upstash Redis。
+ * Note: in-memory for development; replace with Upstash Redis in production.
  */
 
-const DEFAULT_DAILY_LIMIT = 2000;
-
 interface UsageRecord {
-  /** 记录所属日期，格式 YYYY-MM-DD（UTC）。 */
-  date: string;
+  date: string; // YYYY-MM-DD（UTC）
   tokens: number;
 }
 
@@ -20,21 +24,19 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getDailyLimit(): number {
-  const raw = process.env.DAILY_TOKEN_LIMIT;
-  const n = raw ? Number.parseInt(raw, 10) : NaN;
-  return Number.isFinite(n) && n > 0 ? n : DEFAULT_DAILY_LIMIT;
+function getDailyLimit(isLoggedIn: boolean): number {
+  const s = getSettings();
+  return isLoggedIn ? s.loggedInDailyLimit : s.anonymousDailyLimit;
 }
 
 export interface QuotaStatus {
   usedTokens: number;
   dailyLimit: number;
-  /** 剩余额度百分比（0–100）。 */
   remainingPercent: number;
 }
 
-export function getQuota(id: string): QuotaStatus {
-  const dailyLimit = getDailyLimit();
+export function getQuota(id: string, isLoggedIn: boolean): QuotaStatus {
+  const dailyLimit = getDailyLimit(isLoggedIn);
   const record = usageMap.get(id);
   const usedTokens = record && record.date === today() ? record.tokens : 0;
   const remainingPercent = Math.max(
@@ -44,13 +46,13 @@ export function getQuota(id: string): QuotaStatus {
   return { usedTokens, dailyLimit, remainingPercent };
 }
 
-export function hasQuota(id: string): boolean {
-  const { usedTokens, dailyLimit } = getQuota(id);
+export function hasQuota(id: string, isLoggedIn: boolean): boolean {
+  const { usedTokens, dailyLimit } = getQuota(id, isLoggedIn);
   return usedTokens < dailyLimit;
 }
 
-export function recordUsage(id: string, tokens: number): QuotaStatus {
-  const dailyLimit = getDailyLimit();
+export function recordUsage(id: string, tokens: number, isLoggedIn: boolean): QuotaStatus {
+  const dailyLimit = getDailyLimit(isLoggedIn);
   const current = usageMap.get(id);
   const sameDay = Boolean(current && current.date === today());
   const usedTokens =

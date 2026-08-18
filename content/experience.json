@@ -3,27 +3,36 @@
     "id": "exp-1",
     "type": "work",
     "role": "高级前端工程师",
+    "role_en": "Senior Frontend Engineer",
     "company": "ABC 科技",
+    "company_en": "ABC Tech",
     "startDate": "2022-03",
     "endDate": "至今",
-    "description": "负责公司核心产品前端架构与性能优化，搭建组件库并推动工程化规范落地。"
+    "description": "负责公司核心产品前端架构与性能优化，搭建组件库并推动工程化规范落地。",
+    "description_en": "Led frontend architecture and performance tuning for the core product; built a component library and drove engineering standards."
   },
   {
     "id": "exp-2",
     "type": "work",
     "role": "前端工程师",
+    "role_en": "Frontend Engineer",
     "company": "XYZ 网络",
+    "company_en": "XYZ Networks",
     "startDate": "2020-07",
     "endDate": "2022-02",
-    "description": "参与电商平台前端开发，负责订单与支付模块，将首屏加载速度提升 40%。"
+    "description": "参与电商平台前端开发，负责订单与支付模块，将首屏加载速度提升 40%。",
+    "description_en": "Built frontend features for an e-commerce platform (orders & payments) and improved first-paint speed by 40%."
   },
   {
     "id": "exp-3",
     "type": "education",
     "school": "某某大学",
+    "school_en": "Example University",
     "degree": "计算机科学学士",
+    "degree_en": "B.Sc. in Computer Science",
     "startDate": "2016-09",
     "endDate": "2020-06",
-    "description": "主修软件工程，GPA 3.8/4.0，曾获校级程序设计竞赛一等奖。"
+    "description": "主修软件工程，GPA 3.8/4.0，曾获校级程序设计竞赛一等奖。",
+    "description_en": "Majored in software engineering, GPA 3.8/4.0; won first prize in the university programming contest."
   }
 ]

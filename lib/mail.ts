@@ -1,10 +1,14 @@
 import nodemailer from "nodemailer";
+import { getSettings } from "@/lib/settings";
 
 /**
  * 邮件发送层：使用站长自配的 SMTP（nodemailer）。
+ * Email layer: sends via the owner's own SMTP (nodemailer).
  *
- * 未配置 SMTP 时进入「开发模式」：邮件只打印到控制台，不真正发送，
- * 方便本地联调（调用方可在开发模式下回传验证码等调试信息）。
+ * 配置来自 lib/settings.ts（后台可编辑）。未配置 SMTP 时进入「开发模式」：
+ * 邮件只打印到控制台，不真正发送。
+ * Config comes from lib/settings.ts (admin-editable). Without SMTP it runs in
+ * "dev mode": emails are logged to the console instead of actually being sent.
  */
 
 export interface MailAttachment {
@@ -28,7 +32,8 @@ export interface MailResult {
 }
 
 export function isSmtpConfigured(): boolean {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  const s = getSettings();
+  return Boolean(s.smtpHost && s.smtpUser && s.smtpPass);
 }
 
 export async function sendMail(options: MailOptions): Promise<MailResult> {
@@ -45,19 +50,19 @@ export async function sendMail(options: MailOptions): Promise<MailResult> {
     return { sent: false, mocked: true };
   }
 
-  const port = Number(process.env.SMTP_PORT ?? 465);
+  const s = getSettings();
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: port === 465,
+    host: s.smtpHost,
+    port: s.smtpPort,
+    secure: s.smtpPort === 465,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: s.smtpUser,
+      pass: s.smtpPass,
     },
   });
 
   const info = await transporter.sendMail({
-    from: process.env.SMTP_FROM ?? process.env.SMTP_USER,
+    from: s.smtpFrom || s.smtpUser,
     to,
     subject,
     text,

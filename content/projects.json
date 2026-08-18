@@ -2,67 +2,85 @@
   {
     "id": "project-1",
     "title": "个人博客系统",
+    "title_en": "Personal Blog",
     "description": "基于 Next.js 的 Markdown 博客，支持暗色模式、全文搜索与 RSS 订阅。",
+    "description_en": "A Next.js-powered Markdown blog with dark mode, full-text search, and RSS.",
     "techStack": ["Next.js", "Tailwind CSS", "Vercel"],
     "image": "",
     "liveUrl": "https://blog.example.com",
     "githubUrl": "https://github.com/zhangsan/blog",
     "featured": true,
-    "category": "Web 开发"
+    "category": "Web 开发",
+    "category_en": "Web"
   },
   {
     "id": "project-2",
     "title": "AI 知识库问答助手",
+    "title_en": "AI Knowledge-Base Q&A Assistant",
     "description": "基于 RAG 的智能问答系统，支持多文档检索与流式回答。",
+    "description_en": "A RAG-based intelligent Q&A system with multi-document retrieval and streaming answers.",
     "techStack": ["DeepSeek API", "Python", "LangChain"],
     "image": "",
     "liveUrl": "",
     "githubUrl": "https://github.com/zhangsan/ai-qa",
     "featured": true,
-    "category": "AI 应用"
+    "category": "AI 应用",
+    "category_en": "AI"
   },
   {
     "id": "project-3",
     "title": "电商后台管理系统",
+    "title_en": "E-commerce Admin System",
     "description": "为中小商家提供的订单、库存与数据看板管理系统。",
+    "description_en": "Order, inventory, and dashboard management for small-to-medium merchants.",
     "techStack": ["React", "Node.js", "PostgreSQL"],
     "image": "",
     "liveUrl": "https://admin.example.com",
     "githubUrl": "",
     "featured": false,
-    "category": "Web 开发"
+    "category": "Web 开发",
+    "category_en": "Web"
   },
   {
     "id": "project-4",
     "title": "任务清单 CLI 工具",
+    "title_en": "Todo CLI Tool",
     "description": "命令行任务管理工具，支持标签、优先级与数据同步。",
+    "description_en": "A command-line task manager with tags, priorities, and data sync.",
     "techStack": ["TypeScript", "Node.js"],
     "image": "",
     "liveUrl": "",
     "githubUrl": "https://github.com/zhangsan/todo-cli",
     "featured": false,
-    "category": "工具"
+    "category": "工具",
+    "category_en": "Tools"
   },
   {
     "id": "project-5",
     "title": "运动打卡小程序",
+    "title_en": "Fitness Check-in Mini Program",
     "description": "微信小程序，支持运动记录、排行榜与好友互动。",
+    "description_en": "A WeChat mini program for workout tracking, leaderboards, and friend interactions.",
     "techStack": ["微信小程序", "云开发"],
     "image": "",
     "liveUrl": "",
     "githubUrl": "",
     "featured": false,
-    "category": "移动端"
+    "category": "移动端",
+    "category_en": "Mobile"
   },
   {
     "id": "project-6",
     "title": "实时协作白板",
+    "title_en": "Real-time Collaborative Whiteboard",
     "description": "支持多人实时协作的白板应用，基于 WebSocket 同步。",
+    "description_en": "A multiplayer collaborative whiteboard synced over WebSocket.",
     "techStack": ["React", "WebSocket", "Redis"],
     "image": "",
     "liveUrl": "https://whiteboard.example.com",
     "githubUrl": "https://github.com/zhangsan/whiteboard",
     "featured": true,
-    "category": "Web 开发"
+    "category": "Web 开发",
+    "category_en": "Web"
   }
 ]

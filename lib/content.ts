@@ -2,65 +2,34 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 /**
- * 内容加载层（contentLoader）。
+ * 内容加载层（contentLoader）/ Content loading layer.
  *
- * 所有展示内容都存放在项目根目录的 /content 目录下（JSON 文件），
- * 页面组件不包含任何具体内容，只负责调用这里的读取函数并渲染。
+ * 所有展示内容都存放在项目根目录的 /content 目录下（JSON 文件），页面组件不
+ * 包含任何具体内容，只负责调用这里的读取函数并渲染。读取失败时不会抛出异常
+ * 导致白屏，而是返回一个 `ContentResult`，由组件据此显示友好错误提示。
  *
- * 读取失败时不会抛出异常导致白屏，而是返回一个 `ContentResult`，
- * 由组件据此显示友好错误提示。
+ * All display content lives under the top-level /content directory (JSON files);
+ * page components render only what these loaders return. On failure they return
+ * a `ContentResult` instead of throwing, so components can show a friendly error.
  */
 
-// ---- 数据类型定义（与 /content 下的 JSON 结构一一对应） -------------------
+// 数据类型来自 lib/types.ts（双语字段）/ Types (with bilingual fields) live in lib/types.ts.
+export type {
+  Profile,
+  Project,
+  SkillCategory,
+  ExperienceItem,
+  Social,
+} from "@/lib/types";
+import type {
+  Profile,
+  Project,
+  SkillCategory,
+  ExperienceItem,
+  Social,
+} from "@/lib/types";
 
-export interface Profile {
-  name: string;
-  title: string;
-  headline: string;
-  avatar?: string;
-  bio: string;
-  location?: string;
-  email?: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  description: string;
-  techStack: string[];
-  image?: string;
-  liveUrl?: string;
-  githubUrl?: string;
-  featured?: boolean;
-  category?: string;
-}
-
-export interface SkillCategory {
-  category: string;
-  label: string;
-  items: string[];
-}
-
-export interface ExperienceItem {
-  id?: string;
-  type: "work" | "education";
-  role?: string;
-  company?: string;
-  school?: string;
-  degree?: string;
-  startDate: string;
-  endDate: string;
-  description?: string;
-}
-
-export interface Social {
-  linkedin?: string;
-  github?: string;
-  twitter?: string;
-  email?: string;
-}
-
-// ---- 结果类型 -----------------------------------------------------------
+// ---- 结果类型 / Result type -----------------------------------------------
 
 export type ContentResult<T> =
   | { ok: true; data: T }
@@ -84,7 +53,7 @@ async function readJson<T>(fileName: string): Promise<ContentResult<T>> {
   }
 }
 
-// ---- 各文件的读取函数 ----------------------------------------------------
+// ---- 各文件的读取函数 / Loaders for each file -----------------------------
 
 export async function getProfile(): Promise<ContentResult<Profile>> {
   const result = await readJson<Profile>("profile.json");
@@ -92,7 +61,7 @@ export async function getProfile(): Promise<ContentResult<Profile>> {
     return {
       ok: false,
       fileName: "profile.json",
-      error: "profile.json 应该是一个 JSON 对象（而不是数组）。",
+      error: "profile.json 应该是一个 JSON 对象（而不是数组）。/ should be a JSON object, not an array.",
     };
   }
   return result;
@@ -104,7 +73,7 @@ export async function getProjects(): Promise<ContentResult<Project[]>> {
     return {
       ok: false,
       fileName: "projects.json",
-      error: "projects.json 应该是一个 JSON 数组。",
+      error: "projects.json 应该是一个 JSON 数组。/ should be a JSON array.",
     };
   }
   return result;
@@ -116,7 +85,7 @@ export async function getSkills(): Promise<ContentResult<SkillCategory[]>> {
     return {
       ok: false,
       fileName: "skills.json",
-      error: "skills.json 应该是一个 JSON 数组。",
+      error: "skills.json 应该是一个 JSON 数组。/ should be a JSON array.",
     };
   }
   return result;
@@ -128,7 +97,7 @@ export async function getExperience(): Promise<ContentResult<ExperienceItem[]>> 
     return {
       ok: false,
       fileName: "experience.json",
-      error: "experience.json 应该是一个 JSON 数组。",
+      error: "experience.json 应该是一个 JSON 数组。/ should be a JSON array.",
     };
   }
   return result;
@@ -140,7 +109,7 @@ export async function getSocial(): Promise<ContentResult<Social>> {
     return {
       ok: false,
       fileName: "social.json",
-      error: "social.json 应该是一个 JSON 对象（而不是数组）。",
+      error: "social.json 应该是一个 JSON 对象（而不是数组）。/ should be a JSON object, not an array.",
     };
   }
   return result;

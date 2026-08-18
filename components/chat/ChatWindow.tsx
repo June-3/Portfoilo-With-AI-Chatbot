@@ -8,15 +8,15 @@ import {
   type ChatMessage,
 } from "@/store/app-store";
 import { getAnonymousId } from "@/lib/client-id";
+import { useTranslations } from "@/lib/use-translations";
 import { cn } from "@/lib/utils";
-
-const QUICK_QUESTIONS = ["介绍一下他的项目", "他擅长什么技术", "如何联系他"];
 
 function nextId(): string {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export default function ChatWindow() {
+  const { t, lang } = useTranslations();
   const isChatOpen = useAppStore((s) => s.isChatOpen);
   const closeChat = useAppStore((s) => s.closeChat);
   const startPrivateRequest = useAppStore((s) => s.startPrivateRequest);
@@ -24,6 +24,7 @@ export default function ChatWindow() {
   const remainingPercent = useAppStore(selectRemainingPercent);
   const conversation = useAppStore((s) => s.conversation);
   const addConversationMessage = useAppStore((s) => s.addConversationMessage);
+  const user = useAppStore((s) => s.user);
 
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -31,15 +32,17 @@ export default function ChatWindow() {
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 打开窗口时聚焦输入框
+  const quickQuestions = [t("chat.quick1"), t("chat.quick2"), t("chat.quick3")];
+
+  // 打开窗口时聚焦输入框 / Focus the input when the window opens.
   useEffect(() => {
     if (isChatOpen) {
-      const t = setTimeout(() => inputRef.current?.focus(), 60);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => inputRef.current?.focus(), 60);
+      return () => clearTimeout(timer);
     }
   }, [isChatOpen]);
 
-  // 消息变化时滚动到底部
+  // 消息变化时滚动到底部 / Scroll to bottom on new messages.
   useEffect(() => {
     listRef.current?.scrollTo({
       top: listRef.current.scrollHeight,
@@ -65,6 +68,8 @@ export default function ChatWindow() {
           message: content,
           history,
           anonymousId: getAnonymousId(),
+          email: user.email ?? "",
+          lang,
         }),
       });
       const data = await res.json();
@@ -77,7 +82,7 @@ export default function ChatWindow() {
       }
 
       if (!res.ok) {
-        setError(data?.message ?? "请求失败，请稍后再试。");
+        setError(data?.message ?? t("chat.networkError"));
       } else {
         addConversationMessage({
           id: nextId(),
@@ -86,7 +91,7 @@ export default function ChatWindow() {
         });
       }
     } catch {
-      setError("网络错误，请稍后再试。");
+      setError(t("chat.networkError"));
     } finally {
       setIsTyping(false);
     }
@@ -101,36 +106,36 @@ export default function ChatWindow() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex h-[540px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
-      {/* 头部 */}
+      {/* 头部 / Header */}
       <div className="flex items-center justify-between border-b border-border bg-accent/50 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Bot className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-sm font-semibold">AI 助手</p>
-            <p className="text-xs text-muted">今日剩余额度：{remainingPercent}%</p>
+            <p className="text-sm font-semibold">{t("chat.title")}</p>
+            <p className="text-xs text-muted">
+              {t("chat.quota", { percent: remainingPercent })}
+            </p>
           </div>
         </div>
         <button
           type="button"
           onClick={closeChat}
           className="rounded-md p-1.5 text-muted transition-colors hover:bg-accent hover:text-foreground"
-          aria-label="关闭聊天"
+          aria-label={t("chat.close")}
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* 消息区 */}
+      {/* 消息区 / Messages */}
       <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {conversation.length === 0 && (
           <div className="space-y-3">
-            <p className="text-center text-sm text-muted">
-              你好！我是站长的 AI 助手，可以问我关于他的经历、项目与技能。
-            </p>
+            <p className="text-center text-sm text-muted">{t("chat.greeting")}</p>
             <div className="flex flex-wrap justify-center gap-2">
-              {QUICK_QUESTIONS.map((q) => (
+              {quickQuestions.map((q) => (
                 <button
                   key={q}
                   type="button"
@@ -175,18 +180,18 @@ export default function ChatWindow() {
         {error && <p className="text-center text-xs text-red-500">{error}</p>}
       </div>
 
-      {/* 私聊申请入口 */}
+      {/* 私聊申请入口 / Private-request entry */}
       <div className="border-t border-border px-4 py-2">
         <button
           type="button"
           onClick={startPrivateRequest}
           className="w-full rounded-lg border border-border py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
         >
-          私聊申请
+          {t("chat.privateRequest")}
         </button>
       </div>
 
-      {/* 输入区 */}
+      {/* 输入区 / Input */}
       <form
         onSubmit={onSubmit}
         className="flex items-center gap-2 border-t border-border px-3 py-2"
@@ -195,14 +200,14 @@ export default function ChatWindow() {
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="输入你的问题…"
+          placeholder={t("chat.inputPlaceholder")}
           className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
         />
         <button
           type="submit"
           disabled={isTyping || !input.trim()}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
-          aria-label="发送"
+          aria-label={t("chat.send")}
         >
           <Send className="h-4 w-4" />
         </button>

@@ -1,6 +1,28 @@
 "use client";
 
 import { create } from "zustand";
+import type { Lang } from "@/lib/i18n";
+
+const LANG_STORAGE_KEY = "portfolio_language";
+
+function persistLanguage(lang: Lang): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(LANG_STORAGE_KEY, lang);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 读取已保存的语言（供客户端水合使用）。/ Read the persisted language. */
+export function loadPersistedLanguage(): Lang {
+  if (typeof window === "undefined") return "en";
+  try {
+    return window.localStorage.getItem(LANG_STORAGE_KEY) === "zh" ? "zh" : "en";
+  } catch {
+    return "en";
+  }
+}
 
 /**
  * Shared client-side state for the whole site.
@@ -71,6 +93,11 @@ export interface AppState {
   addConversationMessage: (message: ChatMessage) => void;
   clearConversation: () => void;
 
+  // ---- 语言 / language ---------------------------------------------------
+  language: Lang;
+  setLanguage: (lang: Lang) => void;
+  toggleLanguage: () => void;
+
   // ---- 内部标记：登录后是否接着进入私聊申请 ------------------------------
   pendingPrivateRequest: boolean;
 }
@@ -134,6 +161,18 @@ export const useAppStore = create<AppState>()((set) => ({
   addConversationMessage: (message) =>
     set((s) => ({ conversation: [...s.conversation, message] })),
   clearConversation: () => set({ conversation: [] }),
+
+  language: "en",
+  setLanguage: (lang) => {
+    set({ language: lang });
+    persistLanguage(lang);
+  },
+  toggleLanguage: () =>
+    set((s) => {
+      const next: Lang = s.language === "zh" ? "en" : "zh";
+      persistLanguage(next);
+      return { language: next };
+    }),
 
   pendingPrivateRequest: false,
 }));

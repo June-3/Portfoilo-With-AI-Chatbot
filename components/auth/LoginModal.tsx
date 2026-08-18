@@ -3,8 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { Mail, X } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
+import { useTranslations } from "@/lib/use-translations";
 
 export default function LoginModal() {
+  const { t, lang } = useTranslations();
   const isLoginOpen = useAppStore((s) => s.isLoginOpen);
   const closeLogin = useAppStore((s) => s.closeLogin);
   const completeLogin = useAppStore((s) => s.completeLogin);
@@ -34,11 +36,11 @@ export default function LoginModal() {
     e.preventDefault();
     setError(null);
     if (!email.trim()) {
-      setError("请输入邮箱。");
+      setError(t("login.enterEmail"));
       return;
     }
     if (!consent) {
-      setError("请先勾选同意隐私政策。");
+      setError(t("login.needConsent"));
       return;
     }
     setLoading(true);
@@ -50,13 +52,13 @@ export default function LoginModal() {
       });
       const data = await res.json();
       if (!res.ok || data?.ok === false) {
-        setError(data?.message ?? "验证码发送失败。");
+        setError(data?.message ?? t("chat.networkError"));
       } else {
         setDevCode(data?.devCode ?? null);
         setStep("code");
       }
     } catch {
-      setError("网络错误，请稍后再试。");
+      setError(t("chat.networkError"));
     } finally {
       setLoading(false);
     }
@@ -66,7 +68,7 @@ export default function LoginModal() {
     e.preventDefault();
     setError(null);
     if (!code.trim()) {
-      setError("请输入验证码。");
+      setError(t("login.enterCode"));
       return;
     }
     setLoading(true);
@@ -78,7 +80,7 @@ export default function LoginModal() {
       });
       const data = await res.json();
       if (!res.ok || data?.ok === false) {
-        setError(data?.message ?? "验证失败。");
+        setError(data?.message ?? t("chat.networkError"));
       } else {
         completeLogin({
           email: data.email,
@@ -88,7 +90,7 @@ export default function LoginModal() {
         reset();
       }
     } catch {
-      setError("网络错误，请稍后再试。");
+      setError(t("chat.networkError"));
     } finally {
       setLoading(false);
     }
@@ -108,13 +110,13 @@ export default function LoginModal() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">邮箱登录</h2>
+            <h2 className="text-lg font-semibold">{t("login.title")}</h2>
           </div>
           <button
             type="button"
             onClick={handleClose}
             className="rounded-md p-1 text-muted transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="关闭"
+            aria-label={t("login.close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -123,7 +125,7 @@ export default function LoginModal() {
         {step === "email" ? (
           <form onSubmit={handleSendCode} className="mt-5 space-y-4">
             <div>
-              <label className="text-sm font-medium">邮箱</label>
+              <label className="text-sm font-medium">{t("login.email")}</label>
               <input
                 type="email"
                 value={email}
@@ -139,32 +141,44 @@ export default function LoginModal() {
                 onChange={(e) => setConsent(e.target.checked)}
                 className="mt-0.5"
               />
-              <span>我同意提交邮箱即视为同意隐私政策，用于本次私聊申请。</span>
+              <span>
+                {t("login.consent")}{" "}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {t("login.privacy")}
+                </a>
+                {t("login.consentFor")}
+              </span>
             </label>
             <button
               type="submit"
               disabled={loading}
               className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
-              {loading ? "发送中…" : "发送验证码"}
+              {loading ? t("login.sending") : t("login.sendCode")}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerify} className="mt-5 space-y-4">
             <p className="text-sm text-muted">
-              验证码已发送至 <span className="font-medium text-foreground">{email}</span>
+              {t("login.codeSentTo")}{" "}
+              <span className="font-medium text-foreground">{email}</span>
             </p>
             {devCode && (
               <p className="rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
-                开发模式验证码：{devCode}
+                {t("login.devCode", { code: devCode })}
               </p>
             )}
             <div>
-              <label className="text-sm font-medium">验证码</label>
+              <label className="text-sm font-medium">{t("login.code")}</label>
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="6 位数字"
+                placeholder={lang === "en" ? "6 digits" : "6 位数字"}
                 inputMode="numeric"
                 maxLength={6}
                 className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
@@ -176,14 +190,14 @@ export default function LoginModal() {
                 onClick={reset}
                 className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium transition-colors hover:bg-accent"
               >
-                上一步
+                {t("login.back")}
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
               >
-                {loading ? "验证中…" : "验证并登录"}
+                {loading ? t("login.verifying") : t("login.verify")}
               </button>
             </div>
           </form>

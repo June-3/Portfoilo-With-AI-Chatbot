@@ -1,5 +1,6 @@
 /**
  * 对话相关的纯函数（无 Node 依赖），客户端与服务端均可使用。
+ * Pure conversation helpers (no Node deps), safe for both client and server.
  */
 
 export interface ConversationMessage {
@@ -7,7 +8,7 @@ export interface ConversationMessage {
   content: string;
 }
 
-/** 生成对话摘要：拼接访客消息，截断到一定长度。 */
+/** 生成对话摘要：拼接访客消息，截断到一定长度。 / Join visitor messages and truncate. */
 export function summarizeConversation(conversation: ConversationMessage[]): string {
   const userMessages = conversation
     .filter((m) => m.role === "user")

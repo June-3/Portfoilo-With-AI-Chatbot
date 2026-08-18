@@ -4,8 +4,10 @@ import { useState, type FormEvent } from "react";
 import { CircleCheck, Send, X } from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { summarizeConversation } from "@/lib/conversation";
+import { useTranslations } from "@/lib/use-translations";
 
 export default function PrivateRequestModal() {
+  const { t } = useTranslations();
   const isPrivateRequestOpen = useAppStore((s) => s.isPrivateRequestOpen);
   const closePrivateRequest = useAppStore((s) => s.closePrivateRequest);
   const user = useAppStore((s) => s.user);
@@ -32,11 +34,11 @@ export default function PrivateRequestModal() {
     e.preventDefault();
     setError(null);
     if (!user.email) {
-      setError("请先登录。");
+      setError(t("request.needLogin"));
       return;
     }
     if (!consent) {
-      setError("请先勾选同意隐私政策。");
+      setError(t("login.needConsent"));
       return;
     }
     setLoading(true);
@@ -52,13 +54,13 @@ export default function PrivateRequestModal() {
       });
       const data = await res.json();
       if (!res.ok || data?.ok === false) {
-        setError(data?.message ?? "提交失败，请稍后再试。");
+        setError(data?.message ?? t("request.submitFailed"));
       } else {
         markRequestSubmitted();
         setSent(true);
       }
     } catch {
-      setError("网络错误，请稍后再试。");
+      setError(t("chat.networkError"));
     } finally {
       setLoading(false);
     }
@@ -78,13 +80,13 @@ export default function PrivateRequestModal() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Send className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">私聊申请</h2>
+            <h2 className="text-lg font-semibold">{t("request.title")}</h2>
           </div>
           <button
             type="button"
             onClick={handleClose}
             className="rounded-md p-1 text-muted transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="关闭"
+            aria-label={t("request.close")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -93,27 +95,30 @@ export default function PrivateRequestModal() {
         {sent ? (
           <div className="mt-6 text-center">
             <CircleCheck className="mx-auto h-12 w-12 text-green-500" />
-            <h3 className="mt-3 text-base font-semibold">已发送，请查收邮件</h3>
+            <h3 className="mt-3 text-base font-semibold">{t("request.sent")}</h3>
             <p className="mt-2 text-sm text-muted">
-              已向 <span className="font-medium text-foreground">{user.email}</span>{" "}
-              发送确认邮件，我会尽快回复你。
+              {t("request.sentTo")}{" "}
+              <span className="font-medium text-foreground">{user.email}</span>{" "}
+              {t("request.sentToEnd")}
             </p>
             <button
               type="button"
               onClick={handleClose}
               className="mt-5 w-full rounded-lg border border-border py-2.5 text-sm font-medium transition-colors hover:bg-accent"
             >
-              关闭
+              {t("request.close")}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="mt-5 space-y-4">
             <div className="rounded-lg bg-accent/60 p-3">
-              <p className="text-xs text-muted">发送到邮箱</p>
-              <p className="mt-1 text-sm font-medium">{user.email ?? "（未登录）"}</p>
+              <p className="text-xs text-muted">{t("request.sendTo")}</p>
+              <p className="mt-1 text-sm font-medium">
+                {user.email ?? t("request.notLoggedIn")}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-muted">对话摘要预览</p>
+              <p className="text-xs text-muted">{t("request.summaryPreview")}</p>
               <p className="mt-1 rounded-lg border border-border p-3 text-sm text-muted">
                 {preview}
               </p>
@@ -125,14 +130,25 @@ export default function PrivateRequestModal() {
                 onChange={(e) => setConsent(e.target.checked)}
                 className="mt-0.5"
               />
-              <span>我同意提交邮箱即视为同意隐私政策，并将对话摘要发送给站长。</span>
+              <span>
+                {t("request.consent")}{" "}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  {t("login.privacy")}
+                </a>
+                {t("request.consentEnd")}
+              </span>
             </label>
             <button
               type="submit"
               disabled={loading}
               className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
             >
-              {loading ? "发送中…" : "确认发送"}
+              {loading ? t("request.sending") : t("request.confirm")}
             </button>
           </form>
         )}

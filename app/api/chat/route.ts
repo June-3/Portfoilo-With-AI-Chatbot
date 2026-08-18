@@ -1,9 +1,14 @@
 import { answerQuestion, type ChatMessage } from "@/lib/ai";
 import { getQuota, hasQuota, recordUsage } from "@/lib/quota";
+import { isBlocked } from "@/lib/blacklist";
+import { recordRequest } from "@/lib/stats";
+import type { Lang } from "@/lib/i18n";
 
 interface ChatRequestBody {
   message?: string;
   anonymousId?: string;
+  email?: string;
+  lang?: string;
   history?: { role: "user" | "assistant"; content: string }[];
 }
 
@@ -23,6 +28,14 @@ export async function POST(request: Request) {
     typeof body.anonymousId === "string" && body.anonymousId.trim() !== ""
       ? body.anonymousId.trim()
       : "anonymous";
+  const email =
+    typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const lang: Lang = body.lang === "zh" ? "zh" : "en";
+
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip")?.trim() ||
+    undefined;
 
   if (!message) {
     return Response.json(
@@ -31,13 +44,24 @@ export async function POST(request: Request) {
     );
   }
 
-  // 每日额度检查
-  if (!hasQuota(anonymousId)) {
+  // 黑名单检查（IP 或匿名 ID）/ Blacklist check (by IP or anonymous ID)
+  if ((ip && isBlocked(ip)) || isBlocked(anonymousId)) {
+    return Response.json(
+      { error: "blocked", message: "你已被限制使用 AI 助手。" },
+      { status: 403 },
+    );
+  }
+
+  // 登录用户使用邮箱作为额度身份，限额更高 / Signed-in users are keyed by email with a higher limit
+  const isLoggedIn = email !== "";
+  const quotaId = isLoggedIn ? `user:${email}` : `anon:${anonymousId}`;
+
+  if (!hasQuota(quotaId, isLoggedIn)) {
     return Response.json(
       {
         error: "quota_exceeded",
         message: "今日额度已用完，请明天再来，或登录后提高每日额度。",
-        quota: getQuota(anonymousId),
+        quota: getQuota(quotaId, isLoggedIn),
       },
       { status: 429 },
     );
@@ -54,8 +78,9 @@ export async function POST(request: Request) {
         .map((m) => ({ role: m.role, content: m.content }))
     : [];
 
-  const result = await answerQuestion(message, history);
-  const quota = recordUsage(anonymousId, result.tokenUsage);
+  const result = await answerQuestion(message, history, lang);
+  const quota = recordUsage(quotaId, result.tokenUsage, isLoggedIn);
+  recordRequest(result.tokenUsage);
 
   return Response.json({ reply: result.reply, quota });
 }

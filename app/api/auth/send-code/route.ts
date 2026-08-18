@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   const email = typeof body.email === "string" ? body.email : "";
 
-  // 尽力获取访客 IP（Vercel 等代理下通过请求头），用于频率限制
+  // 尽力获取访客 IP（Vercel 等代理下通过请求头），用于频率限制 / Best-effort client IP (via proxy headers) for rate limiting
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip")?.trim() ||

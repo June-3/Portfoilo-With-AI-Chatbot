@@ -1,14 +1,20 @@
 [
   {
     "question": "介绍一下他的项目",
-    "answer": "他主要做 Web 全栈开发，项目包括：个人博客系统（Next.js + Tailwind CSS）、AI 知识库问答助手（DeepSeek + RAG）、电商后台管理系统（React + Node.js + PostgreSQL）、实时协作白板（React + WebSocket）等。你可以在「项目作品」页面查看完整列表与详情。"
+    "question_en": "Tell me about his projects",
+    "answer": "他主要做 Web 全栈开发，项目包括：个人博客系统（Next.js + Tailwind CSS）、AI 知识库问答助手（DeepSeek + RAG）、电商后台管理系统（React + Node.js + PostgreSQL）、实时协作白板（React + WebSocket）等。你可以在「项目作品」页面查看完整列表与详情。",
+    "answer_en": "He mainly does full-stack web development. His projects include a personal blog (Next.js + Tailwind CSS), an AI knowledge-base Q&A assistant (DeepSeek + RAG), an e-commerce admin system (React + Node.js + PostgreSQL), and a real-time collaborative whiteboard (React + WebSocket). See the Projects page for the full list."
   },
   {
     "question": "他擅长什么技术",
-    "answer": "他擅长前端（React、Vue、Next.js、Tailwind CSS）和后端（Node.js、Express、PostgreSQL、Redis），也熟悉 Python、AI 应用（DeepSeek API、RAG、LangChain），以及 Git、Docker、Figma 等工具。"
+    "question_en": "What is he good at",
+    "answer": "他擅长前端（React、Vue、Next.js、Tailwind CSS）和后端（Node.js、Express、PostgreSQL、Redis），也熟悉 Python、AI 应用（DeepSeek API、RAG、LangChain），以及 Git、Docker、Figma 等工具。",
+    "answer_en": "He specializes in frontend (React, Vue, Next.js, Tailwind CSS) and backend (Node.js, Express, PostgreSQL, Redis), and is also familiar with Python, AI apps (DeepSeek API, RAG, LangChain), plus tools like Git, Docker, and Figma."
   },
   {
     "question": "如何联系他",
-    "answer": "你可以通过邮箱 zhangsan@example.com 联系他，也可以访问他的 GitHub 和 LinkedIn（见首页「联系方式」区块）。如果想私聊或谈合作，可以点击聊天窗口里的「私聊申请」按钮。"
+    "question_en": "How can I contact him",
+    "answer": "你可以通过邮箱 zhangsan@example.com 联系他，也可以访问他的 GitHub 和 LinkedIn（见首页「联系方式」区块）。如果想私聊或谈合作，可以点击聊天窗口里的「私聊申请」按钮。",
+    "answer_en": "You can reach him at zhangsan@example.com, or via his GitHub and LinkedIn (see the Contact section on the homepage). For a private chat or collaboration, click the \"Request a Private Chat\" button in the chat window."
   }
 ]

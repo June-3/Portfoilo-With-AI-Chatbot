@@ -1,23 +1,41 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ProjectCard from "./ProjectCard";
 import { cn } from "@/lib/utils";
-import type { Project } from "@/lib/content";
+import { useTranslations } from "@/lib/use-translations";
+import { pickLocalized } from "@/lib/i18n";
+import type { Project } from "@/lib/types";
 
 export default function ProjectGrid({ projects }: { projects: Project[] }) {
+  const { t, lang } = useTranslations();
+  const [active, setActive] = useState("all");
+
+  // 切换语言时重置筛选 / Reset the filter when the language changes.
+  useEffect(() => {
+    setActive("all");
+  }, [lang]);
+
   const categories = useMemo(
     () => [
-      "全部",
+      "all",
       ...Array.from(
-        new Set(projects.map((p) => p.category).filter((c): c is string => Boolean(c))),
+        new Set(
+          projects
+            .map((p) => pickLocalized(lang, p.category ?? "", p.category_en))
+            .filter(Boolean),
+        ),
       ),
     ],
-    [projects],
+    [projects, lang],
   );
-  const [active, setActive] = useState("全部");
+
   const filtered =
-    active === "全部" ? projects : projects.filter((p) => p.category === active);
+    active === "all"
+      ? projects
+      : projects.filter(
+          (p) => pickLocalized(lang, p.category ?? "", p.category_en) === active,
+        );
 
   return (
     <div>
@@ -34,7 +52,7 @@ export default function ProjectGrid({ projects }: { projects: Project[] }) {
                 : "border-border text-muted hover:bg-accent hover:text-foreground",
             )}
           >
-            {category}
+            {category === "all" ? t("projects.all") : category}
           </button>
         ))}
       </div>
@@ -46,7 +64,7 @@ export default function ProjectGrid({ projects }: { projects: Project[] }) {
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-10 text-center text-sm text-muted">该分类下暂无项目。</p>
+        <p className="mt-10 text-center text-sm text-muted">{t("projects.empty")}</p>
       )}
     </div>
   );

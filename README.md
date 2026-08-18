@@ -1,77 +1,120 @@
-# 个人作品集 + AI 助手
+# 个人作品集 + AI 助手 · Personal Portfolio + AI Assistant
 
-一个个人品牌网站：展示经历、项目与技能，并提供 AI 聊天助手（引导访客了解你、收集邮箱并发起私聊申请）。
+一个个人品牌网站：展示经历、项目与技能，并提供 AI 聊天助手（引导访客了解你、收集邮箱并发起私聊申请）。支持 **中英双语切换**。
+A personal-brand website that showcases experience, projects and skills, plus an AI chat assistant (introduces you, collects emails, and handles private-chat requests). Supports **Chinese / English switching**.
 
-## 技术栈
+---
 
-- **前端**：Next.js（App Router）+ Tailwind CSS + Zustand
-- **后端**：Next.js Route Handlers / Server Actions
-- **内容**：`/content` 下的 JSON 文件 + `contentLoader` 统一读取
-- **AI**：DeepSeek API + 轻量 RAG（后续里程碑）
-- **数据库 / 存储**：Supabase（PostgreSQL + Storage，后续里程碑）
-- **Redis**：Upstash（验证码、限流、黑名单，后续里程碑）
-- **邮件**：站长自配 SMTP + nodemailer（后续里程碑）
-- **部署**：Vercel
+## 功能特性 · Features
 
-## 目录结构
+- **作品集展示 · Portfolio**：Hero、关于我、项目作品（分类筛选）、技能、经历时间线、联系方式，内容与代码分离（编辑 `/content` 下的 JSON 即可更新）。
+  Hero, About, Projects (filterable), Skills, Experience timeline, Contact — content is decoupled from code (edit the JSON files under `/content`).
+- **AI 聊天助手 · AI Assistant**：DeepSeek + 轻量 RAG（个人知识库），设置知识边界，对无关问题返回预设拒绝话术。
+  DeepSeek + lightweight RAG over a personal knowledge base, with a knowledge boundary that refuses out-of-scope questions.
+- **私聊申请 · Private-chat request**：邮箱验证码登录 → 二级确认（对话摘要 + 隐私勾选）→ 触发两封邮件（访客确认 + 站长通知，含对话 Markdown 附件）。
+  Email verification login → confirmation step (summary + consent) → two emails (visitor confirmation + owner notification with a Markdown attachment).
+- **站长后台 · Admin panel**（`/admin`）：配置 SMTP / DeepSeek Key / 模型 / 限额 / 邮件模板，查看私聊记录与对话详情、黑名单、每日用量统计。
+  Configure SMTP / DeepSeek key / model / limits / email templates; view requests, blacklist, and daily usage stats.
+- **双语 · i18n**：导航栏一键切换中英文，界面与内容均双语。
+  One-click language switch in the navbar; both the UI and the content are bilingual.
 
-```
-app/                  # 页面路由（首页 / 关于我 / 项目作品 / 技能经历）
-components/
-  layout/             # 导航栏、页脚
-  portfolio/          # 作品集展示组件（Hero、项目卡片、技能、时间线等）
-  chat/               # AI 聊天（里程碑 2 接入）
-  auth/               # 邮箱登录（里程碑 2 接入）
-content/              # 展示内容（JSON 文件，可直接编辑）
-lib/                  # contentLoader 等工具
-store/                # Zustand 全局状态
-public/content/       # 静态资源（图片等）
-docs/                 # 维护与部署文档
-```
+---
 
-## 本地运行
+## 技术栈 · Tech Stack
+
+| 层 · Layer | 技术 · Technology |
+| --- | --- |
+| 前端 · Frontend | Next.js (App Router) + Tailwind CSS + Zustand |
+| 后端 · Backend | Next.js Route Handlers |
+| AI | DeepSeek API + 轻量 RAG · lightweight RAG |
+| 邮件 · Email | nodemailer + 站长自配 SMTP · self-hosted SMTP |
+| 数据库/Redis（生产）· DB/Redis (production) | Supabase + Upstash Redis |
+
+---
+
+## 本地运行 · Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-浏览器打开 [http://localhost:3000](http://localhost:3000)。
+打开 · Open http://localhost:3000。
 
-## 修改内容
+---
 
-网站内容与代码分离，无需改代码即可更新。详见 **[docs/content-guide.md](docs/content-guide.md)**：
+## 修改内容 · Editing Content
 
-- 改个人信息 → `content/profile.json`
-- 加项目 → `content/projects.json`
-- 改技能 → `content/skills.json`
-- 改经历 → `content/experience.json`
-- 改社交链接 → `content/social.json`
-- 图片 → 放入 `public/content/images/`
+内容与代码分离，无需改代码即可更新 · Edit content without touching code. See **[docs/content-guide.md](docs/content-guide.md)**：
 
-## AI 助手
+- 个人信息 · Profile → `content/profile.json`
+- 项目 · Projects → `content/projects.json`
+- 技能 · Skills → `content/skills.json`
+- 经历 · Experience → `content/experience.json`
+- 常见问题（AI 知识库）· FAQ (AI knowledge base) → `content/faq.json`
+- 社交链接 · Social links → `content/social.json`
+- 图片 · Images → `public/content/images/`
 
-聊天助手以 `/content` 下的内容为个人知识库（轻量检索），并调用 DeepSeek 生成回答。
+> 内容字段支持双语：中文字段为主，`_en` 后缀为英文翻译（如 `title` / `title_en`）。
+> Content fields are bilingual: the Chinese field is primary, and the `_en` suffix holds the English translation (e.g. `title` / `title_en`).
 
-- 配置 `DEEPSEEK_API_KEY`（复制 `.env.example` 为 `.env.local`）后，助手用真实大模型回答；
-- 未配置时，助手自动降级为直接返回知识库中检索到的内容，便于本地演示；
-- 匿名访客每日 token 限额默认 2000，可用 `DAILY_TOKEN_LIMIT` 调整；
-- 知识库检索不到（置信度低）或与站长无关的问题，返回预设拒绝话术。
+---
 
-## 私聊申请 / 邮箱登录
+## 环境变量 · Environment Variables
 
-访客在 AI 聊天窗口点击「私聊申请」后：未登录先走邮箱验证码登录，已登录直接进入二级确认（展示对话摘要 + 隐私政策勾选），确认后后端保存记录并触发两封邮件（访客确认邮件 + 站长通知邮件，含对话 Markdown 附件）。
+复制 `.env.example` 为 `.env.local`（本地）或在 Vercel 配置（线上）· Copy `.env.example` to `.env.local` (local) or configure on Vercel (production).
 
-- 验证码通过站长自配 SMTP 发送，同一邮箱 / IP 每小时最多 3 次；
-- 邮箱与对话记录使用 AES-256-GCM 加密存储（`ENCRYPTION_KEY`）；
-- 未配置 SMTP 时进入开发模式：验证码直接显示在界面上，邮件只打印到控制台；
-- 存储目前为内存实现（开发用），生产替换为 Supabase + Upstash Redis。
+关键变量 · Key variables（完整清单见 [docs/deployment.md](docs/deployment.md) · full list in the deployment doc）：
 
-## 里程碑进度
+- `DEEPSEEK_API_KEY` — AI 回答（不填则降级为知识库回答）· for real AI answers
+- `ADMIN_PASSWORD` — 后台密码（开发默认 `admin123`）· admin password
+- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` — 站长自配 SMTP · self-hosted SMTP
+- `OWNER_EMAIL` — 站长接收通知的邮箱 · owner notification email
+- `ENCRYPTION_KEY` — 敏感信息加密密钥 · encryption key
 
-- [x] 里程碑 1：前端框架与主菜单布局
-- [x] 里程碑 2：传统作品集展示（内容解耦 + contentLoader + 操作文档）
-- [x] 里程碑 3：接入 AI 聊天基础问答（DeepSeek + 知识库 + 匿名额度）
-- [x] 里程碑 4：邮箱收集与自动邮件（验证码登录 + 私聊申请 + 两封邮件）
-- [ ] 里程碑 5：AI 聊天与主菜单、作品集集成
-- [ ] 里程碑 6：测试部署、隐私与邮件送达检查
+---
+
+## 部署 · Deployment
+
+详见 · See **[docs/deployment.md](docs/deployment.md)**：环境变量清单、Vercel 部署步骤、SPF/DKIM 配置、Supabase/Upstash 生产接入、上线检查清单。
+Environment variable list, Vercel deployment steps, SPF/DKIM setup, Supabase/Upstash production integration, and a pre-launch checklist.
+
+---
+
+## 目录结构 · Project Structure
+
+```
+app/                  # 页面路由 · routes (首页/关于/项目/技能/隐私/后台)
+components/
+  layout/             # 导航栏、页脚 · navbar, footer
+  portfolio/          # 作品集展示组件 · portfolio components
+  chat/               # AI 聊天 · chat
+  auth/               # 邮箱登录、私聊申请 · login & private-request modals
+  admin/              # 后台管理 · admin panel
+content/              # 展示内容（JSON，可直接编辑）· content (editable JSON)
+lib/                  # contentLoader、i18n、AI、邮件等工具 · utilities
+store/                # Zustand 全局状态 · global state
+public/content/       # 静态资源（图片）· static assets (images)
+docs/                 # 维护与部署文档 · docs
+```
+
+---
+
+## 里程碑进度 · Milestones
+
+- [x] 里程碑 1 · M1：前端框架与主菜单布局 · Framework & main menu layout
+- [x] 里程碑 2 · M2：作品集展示（内容解耦）· Portfolio (decoupled content)
+- [x] 里程碑 3 · M3：AI 聊天基础问答 · AI chat basics
+- [x] 里程碑 4 · M4：邮箱收集与自动邮件 · Email collection & auto-email
+- [x] 里程碑 5 · M5：主菜单状态同步 + 站长后台 · State sync + admin panel
+- [x] 里程碑 6 · M6：隐私 + 部署文档 + 构建验证 · Privacy + deploy docs + build
+- [x] 里程碑 7 · M7：中英双语界面 · Bilingual (EN/ZH) UI
+
+---
+
+## 已知说明 · Notes
+
+- 设置、私聊记录、用量统计、验证码、限流、黑名单目前为**内存实现**（开发用），生产需替换为 Supabase + Upstash Redis（见部署文档）。
+  Settings, requests, stats, verification codes, rate limits, and the blacklist are currently **in-memory** (dev only); replace with Supabase + Upstash Redis for production.
+- 后端 API 的少量错误提示仍为中文，界面与内容已全部双语。
+  A few backend API error messages remain Chinese; the UI and content are fully bilingual.

@@ -1,9 +1,7 @@
 import { sendMail } from "@/lib/mail";
-import {
-  detectIntent,
-  type ConversationMessage,
-} from "@/lib/conversation";
+import { detectIntent, type ConversationMessage } from "@/lib/conversation";
 import { savePrivateRequest } from "@/lib/private-requests";
+import { getSettings, renderTemplate } from "@/lib/settings";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -57,28 +55,22 @@ export async function POST(request: Request) {
     consent,
   });
 
+  const s = getSettings();
+  const time = new Date().toLocaleString("zh-CN");
+
   // 1) 给访客发确认邮件（正式、简短）
   await sendMail({
     to: email,
-    subject: "已收到你的私聊申请",
-    text: `你好，\n\n已收到你的私聊申请，我会尽快通过邮箱回复你。\n\n感谢你的关注。`,
+    subject: s.userConfirmationSubject,
+    text: renderTemplate(s.userConfirmationTemplate, { email }),
   });
 
   // 2) 给站长发通知邮件（含对话 Markdown 附件）
-  const ownerEmail = process.env.OWNER_EMAIL;
-  if (ownerEmail) {
+  if (s.ownerEmail) {
     await sendMail({
-      to: ownerEmail,
-      subject: "【作品集】新的私聊申请",
-      text: [
-        "收到一条新的私聊申请：",
-        "",
-        `- 访客邮箱：${email}`,
-        `- 意向标签：${intent}`,
-        `- 时间：${new Date().toLocaleString("zh-CN")}`,
-        "",
-        "完整对话见附件。",
-      ].join("\n"),
+      to: s.ownerEmail,
+      subject: s.ownerNotificationSubject,
+      text: renderTemplate(s.ownerNotificationTemplate, { email, intent, time }),
       attachments: [
         {
           filename: `request_${Date.now()}.md`,

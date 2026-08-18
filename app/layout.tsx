@@ -7,6 +7,7 @@ import ChatWindow from "@/components/chat/ChatWindow";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import LoginModal from "@/components/auth/LoginModal";
 import PrivateRequestModal from "@/components/auth/PrivateRequestModal";
+import LanguageHydration from "@/components/LanguageHydration";
 
 export const metadata: Metadata = {
   title: {
@@ -18,8 +19,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="zh-CN" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
+        <LanguageHydration />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

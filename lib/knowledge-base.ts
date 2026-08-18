@@ -7,16 +7,19 @@ import {
   getSkills,
   getSocial,
 } from "@/lib/content";
+import { pickLocalized, type Lang } from "@/lib/i18n";
 
 /**
- * 个人知识库 + 轻量检索（RAG 的简化版）。
+ * 个人知识库 + 轻量检索（RAG 的简化版）/ Personal knowledge base + lightweight
+ * retrieval (a simplified RAG).
  *
- * 把 /content 下的内容（个人简介、项目、技能、经历、社交、FAQ）整理成
- * 若干个「知识块」，检索时用关键词 / 标题 / 子串匹配打分，返回最相关的几块，
- * 作为给大模型的上下文。
+ * 把 /content 下的内容整理成若干「知识块」，检索时用关键词 / 标题 / 子串匹配
+ * 打分，返回最相关的几块作为给大模型的上下文。支持中英双语：按语言生成知识块，
+ * 关键词同时收录中英两种，便于双语问题都能命中。
  *
- * 说明：当前为轻量检索（里程碑 3），未使用向量数据库；后续可替换为
- * embedding + 向量检索以提升语义匹配能力。
+ * It turns /content into "chunks", scores them by keyword/title/substring match,
+ * and returns the top matches as context for the model. It is bilingual: chunks
+ * are built for the given language, while keywords cover both languages.
  */
 
 export interface KnowledgeChunk {
@@ -28,7 +31,9 @@ export interface KnowledgeChunk {
 
 export interface FaqEntry {
   question: string;
+  question_en?: string;
   answer: string;
+  answer_en?: string;
 }
 
 async function loadFaq(): Promise<FaqEntry[]> {
@@ -43,7 +48,7 @@ async function loadFaq(): Promise<FaqEntry[]> {
   }
 }
 
-export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
+export async function buildKnowledgeBase(lang: Lang): Promise<KnowledgeChunk[]> {
   const [profile, projects, skills, experience, social, faq] = await Promise.all([
     getProfile(),
     getProjects(),
@@ -57,21 +62,32 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
 
   if (profile.ok) {
     const p = profile.data;
+    const name = pickLocalized(lang, p.name, p.name_en);
+    const title = pickLocalized(lang, p.title, p.title_en);
+    const headline = pickLocalized(lang, p.headline, p.headline_en);
+    const bio = pickLocalized(lang, p.bio, p.bio_en);
+    const location = pickLocalized(lang, p.location ?? "", p.location_en);
     chunks.push({
       source: "profile",
-      title: `${p.name} 的个人简介`,
-      content: `${p.name}，${p.title}。${p.headline}。${p.bio}${
-        p.location ? ` 所在地：${p.location}。` : ""
-      }${p.email ? ` 邮箱：${p.email}。` : ""}`,
+      title: lang === "en" ? `${name}'s Profile` : `${name} 的个人简介`,
+      content: lang === "en"
+        ? `${name}, ${title}. ${headline}. ${bio}${location ? ` Location: ${location}.` : ""}${p.email ? ` Email: ${p.email}.` : ""}`
+        : `${name}，${title}。${headline}。${bio}${location ? ` 所在地：${location}。` : ""}${p.email ? ` 邮箱：${p.email}。` : ""}`,
       keywords: [
         p.name,
+        p.name_en ?? "",
         p.title,
+        p.title_en ?? "",
         "简介",
         "背景",
         "职位",
         "是谁",
         "介绍",
-        p.location ?? "",
+        "profile",
+        "background",
+        "who",
+        "about",
+        location,
         p.email ?? "",
       ].filter(Boolean),
     });
@@ -79,28 +95,38 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
 
   if (projects.ok) {
     for (const project of projects.data) {
+      const title = pickLocalized(lang, project.title, project.title_en);
+      const desc = pickLocalized(lang, project.description, project.description_en);
+      const category = pickLocalized(lang, project.category ?? "", project.category_en);
       chunks.push({
         source: `project:${project.id}`,
-        title: project.title,
-        content: `项目「${project.title}」（${project.category ?? "未分类"}）：${
-          project.description
-        } 技术栈：${project.techStack.join("、")}。${
-          project.liveUrl ? `在线演示：${project.liveUrl}。` : ""
-        }${project.githubUrl ? `源码：${project.githubUrl}。` : ""}`,
-        keywords: [project.title, project.category ?? "", ...project.techStack].filter(
-          Boolean,
-        ),
+        title,
+        content: lang === "en"
+          ? `Project "${title}" (${category || "Uncategorized"}): ${desc} Tech stack: ${project.techStack.join(", ")}.${project.liveUrl ? ` Live demo: ${project.liveUrl}.` : ""}${project.githubUrl ? ` Source: ${project.githubUrl}.` : ""}`
+          : `项目「${title}」（${category || "未分类"}）：${desc} 技术栈：${project.techStack.join("、")}。${project.liveUrl ? `在线演示：${project.liveUrl}。` : ""}${project.githubUrl ? `源码：${project.githubUrl}。` : ""}`,
+        keywords: [
+          project.title,
+          project.title_en ?? "",
+          project.category ?? "",
+          project.category_en ?? "",
+          ...project.techStack,
+        ].filter(Boolean),
       });
     }
   }
 
   if (skills.ok) {
     for (const category of skills.data) {
+      const label = pickLocalized(lang, category.label, category.label_en);
       chunks.push({
         source: `skill:${category.category}`,
-        title: `技能：${category.label}`,
-        content: `${category.label}：${category.items.join("、")}。`,
-        keywords: [category.label, ...category.items].filter(Boolean),
+        title: lang === "en" ? `Skills: ${label}` : `技能：${label}`,
+        content: lang === "en"
+          ? `${label}: ${category.items.join(", ")}.`
+          : `${label}：${category.items.join("、")}。`,
+        keywords: [category.label, category.label_en ?? "", ...category.items].filter(
+          Boolean,
+        ),
       });
     }
   }
@@ -109,24 +135,47 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
     for (const item of experience.data) {
       const id = item.id ?? `${item.type}-${item.startDate}`;
       if (item.type === "work") {
+        const role = pickLocalized(lang, item.role ?? "", item.role_en);
+        const company = pickLocalized(lang, item.company ?? "", item.company_en);
+        const desc = pickLocalized(lang, item.description ?? "", item.description_en);
         chunks.push({
           source: `experience:${id}`,
-          title: `${item.role}（${item.company}）`,
-          content: `工作经历：${item.role} @ ${item.company}，${item.startDate} 至 ${
-            item.endDate
-          }。${item.description ?? ""}`,
-          keywords: [item.role ?? "", item.company ?? "", "经历", "工作"].filter(Boolean),
+          title: `${role} (${company})`,
+          content: lang === "en"
+            ? `Work: ${role} @ ${company}, ${item.startDate} to ${item.endDate}. ${desc}`
+            : `工作经历：${role} @ ${company}，${item.startDate} 至 ${item.endDate}。${desc}`,
+          keywords: [
+            item.role ?? "",
+            item.role_en ?? "",
+            item.company ?? "",
+            item.company_en ?? "",
+            "经历",
+            "工作",
+            "experience",
+            "work",
+          ].filter(Boolean),
         });
       } else {
+        const school = pickLocalized(lang, item.school ?? "", item.school_en);
+        const degree = pickLocalized(lang, item.degree ?? "", item.degree_en);
+        const desc = pickLocalized(lang, item.description ?? "", item.description_en);
         chunks.push({
           source: `experience:${id}`,
-          title: `${item.school}（${item.degree}）`,
-          content: `教育经历：${item.school}，${item.degree}，${item.startDate} 至 ${
-            item.endDate
-          }。${item.description ?? ""}`,
-          keywords: [item.school ?? "", item.degree ?? "", "教育", "学历", "大学"].filter(
-            Boolean,
-          ),
+          title: `${school} (${degree})`,
+          content: lang === "en"
+            ? `Education: ${school}, ${degree}, ${item.startDate} to ${item.endDate}. ${desc}`
+            : `教育经历：${school}，${degree}，${item.startDate} 至 ${item.endDate}。${desc}`,
+          keywords: [
+            item.school ?? "",
+            item.school_en ?? "",
+            item.degree ?? "",
+            item.degree_en ?? "",
+            "教育",
+            "学历",
+            "大学",
+            "education",
+            "university",
+          ].filter(Boolean),
         });
       }
     }
@@ -135,15 +184,17 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
   if (social.ok) {
     const s = social.data;
     const links = [
-      s.github ? `GitHub：${s.github}` : "",
-      s.linkedin ? `LinkedIn：${s.linkedin}` : "",
-      s.email ? `邮箱：${s.email}` : "",
+      s.github ? `GitHub: ${s.github}` : "",
+      s.linkedin ? `LinkedIn: ${s.linkedin}` : "",
+      s.email ? (lang === "en" ? `Email: ${s.email}` : `邮箱：${s.email}`) : "",
     ].filter(Boolean);
     if (links.length > 0) {
       chunks.push({
         source: "social",
-        title: "联系方式",
-        content: `联系方式：${links.join("；")}。`,
+        title: lang === "en" ? "Contact" : "联系方式",
+        content: lang === "en"
+          ? `Contact: ${links.join("; ")}.`
+          : `联系方式：${links.join("；")}。`,
         keywords: [
           "联系",
           "联系方式",
@@ -152,6 +203,9 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
           "linkedin",
           "怎么联系",
           "如何联系",
+          "contact",
+          "email",
+          "reach",
           s.github ?? "",
           s.linkedin ?? "",
           s.email ?? "",
@@ -161,14 +215,18 @@ export async function buildKnowledgeBase(): Promise<KnowledgeChunk[]> {
   }
 
   for (const entry of faq) {
+    const question = pickLocalized(lang, entry.question, entry.question_en);
+    const answer = pickLocalized(lang, entry.answer, entry.answer_en);
     chunks.push({
       source: `faq:${entry.question}`,
-      title: entry.question,
-      content: entry.answer,
+      title: question,
+      content: answer,
       keywords: [
         entry.question,
+        entry.question_en ?? "",
         ...entry.question.split(/[，。？、！\s]+/).filter(Boolean),
-      ],
+        ...(entry.question_en ?? "").split(/[,.?!\s]+/).filter(Boolean),
+      ].filter(Boolean),
     });
   }
 
@@ -180,7 +238,7 @@ export interface RetrievedChunk {
   score: number;
 }
 
-/** 检索置信度阈值：分数低于此值时视为「知识库无相关内容」。 */
+/** 检索置信度阈值：分数低于此值视为「知识库无相关内容」。/ Below this score, the query is treated as out-of-scope. */
 const SCORE_THRESHOLD = 1;
 
 export function retrieveChunks(
@@ -195,7 +253,7 @@ export function retrieveChunks(
     let score = 0;
     const title = chunk.title.toLowerCase();
 
-    // 标题完全/子串匹配，权重最高
+    // 标题完全/子串匹配，权重最高 / Exact or substring title match carries the most weight.
     if (q.length >= 2 && (q.includes(title) || title.includes(q))) {
       score += 4;
     }
@@ -203,9 +261,7 @@ export function retrieveChunks(
     for (const kw of chunk.keywords) {
       const k = kw.toLowerCase();
       if (!k) continue;
-      // 关键词出现在问题中
       if (k.length >= 2 && q.includes(k)) score += 2;
-      // 问题中的词出现在关键词中（关键词较长时）
       else if (k.length >= 4 && q.length >= 2 && k.includes(q)) score += 1;
     }
 

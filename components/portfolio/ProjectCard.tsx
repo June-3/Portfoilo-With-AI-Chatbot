@@ -1,30 +1,39 @@
-import type { Project } from "@/lib/content";
+"use client";
+
+import { useTranslations } from "@/lib/use-translations";
+import { pickLocalized } from "@/lib/i18n";
+import type { Project } from "@/lib/types";
 
 export default function ProjectCard({ project }: { project: Project }) {
+  const { t, lang } = useTranslations();
+  const title = pickLocalized(lang, project.title, project.title_en);
+  const description = pickLocalized(lang, project.description, project.description_en);
+  const category = pickLocalized(lang, project.category ?? "", project.category_en);
+
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-background shadow-sm transition-shadow hover:shadow-md">
       {project.image ? (
-        <img src={project.image} alt={project.title} className="h-44 w-full object-cover" />
+        <img src={project.image} alt={title} className="h-44 w-full object-cover" />
       ) : (
         <div
           className="flex h-44 w-full items-center justify-center text-4xl font-semibold text-white"
           style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
         >
-          {project.title.charAt(0)}
+          {title.charAt(0)}
         </div>
       )}
 
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold">{project.title}</h3>
+          <h3 className="text-lg font-semibold">{title}</h3>
           {project.featured && (
             <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-primary">
-              精选
+              {t("projects.featured")}
             </span>
           )}
         </div>
-        {project.category && <p className="mt-1 text-xs text-muted">{project.category}</p>}
-        <p className="mt-3 text-sm leading-relaxed text-muted">{project.description}</p>
+        {category && <p className="mt-1 text-xs text-muted">{category}</p>}
+        <p className="mt-3 text-sm leading-relaxed text-muted">{description}</p>
         <div className="mt-4 flex flex-wrap gap-1.5">
           {project.techStack.map((tech) => (
             <span key={tech} className="rounded-md bg-accent px-2 py-0.5 text-xs text-primary">
@@ -40,7 +49,7 @@ export default function ProjectCard({ project }: { project: Project }) {
               rel="noopener noreferrer"
               className="text-sm font-medium text-primary hover:underline"
             >
-              在线演示
+              {t("projects.live")}
             </a>
           )}
           {project.githubUrl && (
@@ -50,7 +59,7 @@ export default function ProjectCard({ project }: { project: Project }) {
               rel="noopener noreferrer"
               className="text-sm font-medium text-muted hover:underline"
             >
-              源代码
+              {t("projects.source")}
             </a>
           )}
         </div>

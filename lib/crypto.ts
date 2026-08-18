@@ -2,9 +2,12 @@ import crypto from "node:crypto";
 
 /**
  * 对称加密工具（AES-256-GCM），用于加密存储邮箱、对话等敏感信息。
+ * Symmetric encryption (AES-256-GCM) for sensitive data like emails and conversations.
  *
  * 生产环境必须设置 ENCRYPTION_KEY（见 .env.example）。未设置时，为便于本地
  * 开发，会原样返回明文（不加密）。
+ * Production must set ENCRYPTION_KEY (see .env.example). Without it, plaintext is
+ * returned as-is to keep local development simple.
  */
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
