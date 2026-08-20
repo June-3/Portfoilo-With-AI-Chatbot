@@ -1,14 +1,14 @@
 {
-  "name": "某某",
-  "name_en": "Mr. Unknown",
-  "title": "全栈开发工程师",
-  "title_en": "Full-Stack Developer",
-  "headline": "热爱构建优雅、高效的 Web 应用，关注用户体验与工程质量。",
-  "headline_en": "Passionate about building elegant, efficient web apps with a focus on UX and engineering quality.",
-  "avatar": "/content/images/avatar.svg",
-  "bio": "拥有 5 年全栈开发经验，专注于 React 和 Node.js。曾主导多个从 0 到 1 的产品开发，熟悉前后端协作、性能优化与工程化实践。",
-  "bio_en": "5+ years of full-stack experience focused on React and Node.js. Led several 0-to-1 products and is experienced in frontend/backend collaboration, performance tuning, and engineering best practices.",
-  "location": "地球",
-  "location_en": "Earth",
-  "email": "FromEarth@example.com"
+"name": "Justin 王",
+"name_en": "Xicheng Wang",
+"title": "软件工程学生 · 全栈开发",
+"title_en": "Software Engineering Student · Full-Stack Developer",
+"headline": "热爱构建实用、高效的Web应用，关注系统集成与工业技术应用。",
+"headline_en": "Passionate about building practical, efficient web apps with a focus on system integration and industrial technology applications.",
+"avatar": "/content/images/avatar.svg",
+"bio": "卡尔加里大学软件工程学生，ENSF项目。拥有多个全栈项目实践经验，涵盖React/Next.js、Go、C#/ASP.NET Core、Python及SQL数据库。对AI应用和工业数据采集与系统集成有浓厚兴趣，自学并实现过Knowledge Base, RAG, Modbus TCP通信与SCADA风格数据采集。善于快速学习新技术，具备独立交付完整项目的自驱力，熟练使用AI工具提升开发效率。。",
+"bio_en": "Software Engineering student at the University of Calgary (ENSF program). Hands-on experience across full-stack projects using React/Next.js, Go, C#/ASP.NET Core, Python, and SQL databases. Strong interest in AI applications and industrial data acquisition and system integration — self-taught Knowledge Base and RAG implementations, Modbus TCP communication, and SCADA-style data collection pipeline. Quick learner of new technologies, self-driven to deliver complete projects independently, and proficient in leveraging AI tools to enhance development efficiency.",
+"location": "卡尔加里, 阿尔伯塔",
+"location_en": "Calgary, Alberta",
+"email": "xicheng.wang@ucalgary.com"
 }

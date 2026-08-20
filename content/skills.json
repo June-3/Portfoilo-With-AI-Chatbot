@@ -1,7 +1,44 @@
 [
-  { "category": "languages", "label": "编程语言", "label_en": "Languages", "items": ["JavaScript", "TypeScript", "Python"] },
-  { "category": "frontend", "label": "前端", "label_en": "Frontend", "items": ["React", "Vue", "Next.js", "Tailwind CSS"] },
-  { "category": "backend", "label": "后端", "label_en": "Backend", "items": ["Node.js", "Express", "PostgreSQL", "Redis"] },
-  { "category": "ai", "label": "AI / 工具", "label_en": "AI / Tools", "items": ["DeepSeek API", "LangChain", "RAG"] },
-  { "category": "tools", "label": "工具与协作", "label_en": "Tools & Collaboration", "items": ["Git", "Docker", "Figma"] }
+  { 
+    "category": "languages", 
+    "label": "编程语言", 
+    "label_en": "Languages", 
+    "items": ["Python", "C++","JavaScript", "TypeScript", "C#", "Java","Go" ] 
+  },
+  { 
+    "category": "frontend", 
+    "label": "前端", 
+    "label_en": "Frontend", 
+    "items": ["React", "Next.js", "TypeScript", "Tailwind CSS", "Zustand", "Leaflet"] 
+  },
+  { 
+    "category": "backend", 
+    "label": "后端", 
+    "label_en": "Backend", 
+    "items": ["Go", "Node.js", "C# / ASP.NET Core", "Java / Spring Boot", "Python", "REST API"] 
+  },
+  { 
+    "category": "database", 
+    "label": "数据库", 
+    "label_en": "Databases", 
+    "items": ["SQL Server", "PostgreSQL", "MySQL", "Supabase", "Redis"] 
+  },
+  { 
+    "category": "ai", 
+    "label": "AI / 工具", 
+    "label_en": "AI / Tools", 
+    "items": ["Claude Code", "DeepSeek API", "RAG / pgvector"] 
+  },
+  { 
+    "category": "industrial", 
+    "label": "工业与通信", 
+    "label_en": "Industrial & Communication", 
+    "items": ["Modbus TCP", "SCADA/RTU Concepts", "TCP/IP"] 
+  },
+  { 
+    "category": "tools", 
+    "label": "工具与平台", 
+    "label_en": "Tools & Platforms", 
+    "items": ["Git", "Docker", "Linux/Unix", "AWS EC2", "Vite", "Postman", "Vercel"] 
+  }
 ]
