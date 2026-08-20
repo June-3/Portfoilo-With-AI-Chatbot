@@ -1,11 +1,11 @@
+import { getRedis, isRedisConfigured } from "@/lib/redis";
+
 /**
- * 滑动窗口限流（内存实现）。
- * Sliding-window rate limiting (in-memory implementation).
+ * 滑动窗口限流 / Sliding-window rate limiting.
  *
- * 说明：这是开发阶段的临时实现；后续将替换为 Upstash Redis 的滑动窗口，
- * 以支持多实例共享、持久化与更精确的限流。
- * Note: temporary dev implementation; replace with an Upstash Redis sliding
- * window for shared, persistent, more accurate rate limiting.
+ * Redis 优先（有序集合按时间戳滑动窗口），未配置 Redis 时回退到内存实现。
+ * Redis-first (sorted-set sliding window); falls back to in-memory when Redis
+ * is not configured.
  */
 
 const buckets = new Map<string, number[]>();
@@ -15,15 +15,38 @@ const buckets = new Map<string, number[]>();
  * Returns true (and records the call) if key has fewer than `limit` hits within
  * `windowMs`, otherwise false.
  */
-export function checkRateLimit(key: string, limit: number, windowMs: number): boolean {
+export async function checkRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+): Promise<boolean> {
+  if (isRedisConfigured()) {
+    try {
+      const redis = getRedis()!;
+      const rkey = `rl:${key}`;
+      const now = Date.now();
+      const min = now - windowMs;
+
+      // 清理过期时间戳 / prune expired timestamps
+      await redis.zremrangebyscore(rkey, 0, min);
+      const count = await redis.zcard(rkey);
+      if (count >= limit) return false;
+
+      await redis.zadd(rkey, { score: now, member: `${now}:${Math.random()}` });
+      await redis.expire(rkey, Math.ceil(windowMs / 1000));
+      return true;
+    } catch (err) {
+      console.error("[rate-limit] Redis 失败，回退内存 / failed, falling back:", err);
+    }
+  }
+
+  // 内存兜底 / in-memory fallback
   const now = Date.now();
   const timestamps = (buckets.get(key) ?? []).filter((t) => now - t < windowMs);
-
   if (timestamps.length >= limit) {
     buckets.set(key, timestamps);
     return false;
   }
-
   timestamps.push(now);
   buckets.set(key, timestamps);
   return true;

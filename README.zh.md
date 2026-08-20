@@ -112,4 +112,4 @@ docs/                 # 维护与部署文档
 
 ## 已知说明 · Notes
 
-- 设置、私聊记录、用量统计、验证码、限流、黑名单目前为**内存实现**（开发用），生产需替换为 Supabase + Upstash Redis（见部署文档）。
+- **持久化**：验证码 / 每日额度 / 限流 / 黑名单使用 **Upstash Redis**；配置 / 用户 / 私聊记录 / 用量统计使用 **Supabase**。未配置对应密钥时自动回退到内存实现（适合本地演示；多实例不共享、重启即清空）。上线前需在 Supabase 执行 `supabase/schema.sql` 与 `supabase/schema-persistence.sql` 建表。

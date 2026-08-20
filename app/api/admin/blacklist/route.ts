@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
-  return Response.json(listBlacklist());
+  return Response.json(await listBlacklist());
 }
 
 export async function POST(request: Request) {
@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, message: "封禁对象不能为空。" }, { status: 400 });
   }
 
-  addToBlacklist(id);
-  return Response.json({ ok: true, blacklist: listBlacklist() });
+  await addToBlacklist(id);
+  return Response.json({ ok: true, blacklist: await listBlacklist() });
 }
 
 export async function DELETE(request: Request) {
@@ -51,6 +51,6 @@ export async function DELETE(request: Request) {
     return Response.json({ ok: false, message: "解封对象不能为空。" }, { status: 400 });
   }
 
-  removeFromBlacklist(id);
-  return Response.json({ ok: true, blacklist: listBlacklist() });
+  await removeFromBlacklist(id);
+  return Response.json({ ok: true, blacklist: await listBlacklist() });
 }

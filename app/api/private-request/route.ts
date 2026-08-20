@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     : [];
 
   const intent = detectIntent(conversation);
-  const { markdown } = savePrivateRequest({
+  const { markdown } = await savePrivateRequest({
     email,
     intent,
     conversation,

@@ -115,4 +115,4 @@ docs/                 # Maintenance and deployment documentation
 
 ## Notes
 
-- Settings, private chat records, usage statistics, verification codes, rate limiting, and blacklist are currently implemented in memory (for development). For production, replace with Supabase + Upstash Redis (see deployment docs).
+- **Persistence**: verification codes, daily quotas, rate limits and the blacklist use **Upstash Redis**; settings, users, private requests and usage stats use **Supabase**. Each falls back to in-memory storage automatically when the corresponding keys are missing (fine for local demos, but not shared across serverless instances). Run `supabase/schema.sql` and `supabase/schema-persistence.sql` in Supabase to create the tables.

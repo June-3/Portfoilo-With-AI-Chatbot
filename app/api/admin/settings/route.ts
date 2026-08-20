@@ -1,5 +1,10 @@
 import { getAdminTokenFromRequest, verifyAdminToken } from "@/lib/admin-auth";
-import { getPublicSettings, updateSettings, type SettingsUpdate } from "@/lib/settings";
+import {
+  getPublicSettings,
+  hydrateSettings,
+  updateSettings,
+  type SettingsUpdate,
+} from "@/lib/settings";
 
 function isAuthorized(request: Request): boolean {
   const token = getAdminTokenFromRequest(request);
@@ -10,6 +15,7 @@ export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
+  await hydrateSettings();
   return Response.json(getPublicSettings());
 }
 
@@ -25,6 +31,8 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, message: "请求体不是有效的 JSON。" }, { status: 400 });
   }
 
+  await hydrateSettings();
+
   const update: SettingsUpdate = {
     ...body,
     smtpPort: body.smtpPort != null ? Number(body.smtpPort) : undefined,
@@ -37,6 +45,6 @@ export async function POST(request: Request) {
       body.codeScoreThreshold != null ? Number(body.codeScoreThreshold) : undefined,
   };
 
-  updateSettings(update);
+  await updateSettings(update);
   return Response.json({ ok: true, settings: getPublicSettings() });
 }

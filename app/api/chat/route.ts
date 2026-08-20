@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   // 黑名单检查（IP 或匿名 ID）/ Blacklist check (by IP or anonymous ID)
-  if ((ip && isBlocked(ip)) || isBlocked(anonymousId)) {
+  if ((ip && (await isBlocked(ip))) || (await isBlocked(anonymousId))) {
     return Response.json(
       { error: "blocked", message: "You have been blocked from using the AI assistant." },
       { status: 403 },
@@ -56,12 +56,12 @@ export async function POST(request: Request) {
   const isLoggedIn = email !== "";
   const quotaId = isLoggedIn ? `user:${email}` : `anon:${anonymousId}`;
 
-  if (!hasQuota(quotaId, isLoggedIn)) {
+  if (!(await hasQuota(quotaId, isLoggedIn))) {
     return Response.json(
       {
         error: "quota_exceeded",
         message: "You have exceeded your daily quota. Please try again tomorrow, or sign in to increase your daily limit.",
-        quota: getQuota(quotaId, isLoggedIn),
+        quota: await getQuota(quotaId, isLoggedIn),
       },
       { status: 429 },
     );
@@ -79,8 +79,8 @@ export async function POST(request: Request) {
     : [];
 
   const result = await answerQuestion(message, history, lang);
-  const quota = recordUsage(quotaId, result.tokenUsage, isLoggedIn);
-  recordRequest(result.tokenUsage);
+  const quota = await recordUsage(quotaId, result.tokenUsage, isLoggedIn);
+  await recordRequest(result.tokenUsage);
 
   return Response.json({ reply: result.reply, quota, tokensUsed: result.tokenUsage });
 }

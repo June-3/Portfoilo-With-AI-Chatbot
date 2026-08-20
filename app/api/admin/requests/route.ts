@@ -7,5 +7,5 @@ export async function GET(request: Request) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  return Response.json(listPrivateRequests());
+  return Response.json(await listPrivateRequests());
 }

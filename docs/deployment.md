@@ -25,10 +25,16 @@
 | `OWNER_EMAIL` | 否 | 站长接收私聊通知的邮箱 | 空 |
 | `ENCRYPTION_KEY` | **是** | 加密邮箱/对话记录（32+ 位随机字符串） | 空 |
 | `NEXT_PUBLIC_SITE_URL` | 否 | 站点完整 URL（用于 sitemap/robots） | `http://localhost:3000` |
-| `SUPABASE_URL` 等 | 否 | 数据库（生产接入，见第六节） | 空 |
-| `UPSTASH_REDIS_*` | 否 | Redis（生产接入，见第六节） | 空 |
+| `SUPABASE_URL` 等 | 否* | 数据库（见第六节） | 空 |
+| `UPSTASH_REDIS_*` | 否* | Redis（见第六节） | 空 |
+| `JINA_API_KEY` | 否* | Jina Embeddings API Key（代码知识库入库/检索） | 空 |
+| `JINA_EMBED_MODEL` | 否 | 向量模型 | `jina-embeddings-v3` |
+| `JINA_EMBED_DIM` | 否 | 向量维度 | `1024` |
+| `KB_STRONG_SCORE` | 否 | 个人知识库强命中分数阈值（越高越严格） | `2` |
+| `CODE_SCORE_THRESHOLD` | 否 | 代码向量相似度阈值（0–1，越低越宽容） | `0.25` |
 
 > \* `DEEPSEEK_API_KEY` 与 SMTP 三项：未配置时进入「开发模式」——AI 返回知识库内容、验证码直接显示在界面、邮件只打印日志。**上线前必须配置。**
+> \* `JINA_API_KEY` / `SUPABASE_*` / `UPSTASH_REDIS_*`：未配置时相关功能自动回退到内存实现（仅本地演示）。**上线前必须配置。**
 
 ---
 
@@ -87,21 +93,26 @@ npm start   # 验证生产构建，访问 http://localhost:3000
 
 ---
 
-## 六、生产环境：接入 Supabase + Upstash Redis
+## 六、数据持久化（Supabase + Upstash Redis）——已实现
 
-当前「设置 / 私聊记录 / 用量统计 / 验证码 / 限流 / 黑名单」为**内存实现**（开发用，重启即清空、多实例不共享）。上线前需替换为持久化服务：
+代码已完成「**Redis/Supabase 优先 + 内存兜底**」改造：
 
-| 现状（内存） | 生产替换为 | 说明 |
-| --- | --- | --- |
-| `lib/settings.ts` | Supabase 表 `settings` | 配置持久化，敏感字段加密存 |
-| `lib/private-requests.ts` | Supabase 表 `users` / `private_requests` | 用户与私聊记录 |
-| `lib/stats.ts` | Supabase 表 `usage_stats` | 每日用量 |
-| `lib/verification.ts` | Upstash Redis（`SETEX` 过期） | 验证码 |
-| `lib/rate-limit.ts` | Upstash Redis（滑动窗口） | 限流 |
-| `lib/quota.ts` | Upstash Redis | 每日额度 |
-| `lib/blacklist.ts` | Upstash Redis / Supabase | 黑名单 |
+| 模块 | 实现 |
+| --- | --- |
+| `lib/verification.ts` 验证码 | Upstash Redis `SETEX`（10 分钟过期）|
+| `lib/quota.ts` 每日额度 | Upstash Redis `INCRBY` + 按天过期 |
+| `lib/rate-limit.ts` 限流 | Upstash Redis 有序集合滑动窗口 |
+| `lib/blacklist.ts` 黑名单 | Upstash Redis `SET` |
+| `lib/settings.ts` 配置 | Supabase `site_settings` |
+| `lib/private-requests.ts` 用户/私聊记录 | Supabase `users` / `private_requests` |
+| `lib/stats.ts` 用量统计 | Supabase `usage_stats`（`increment_usage` RPC）|
 
-配置好 `SUPABASE_URL` / `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` 与 `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` 后，逐个替换上述模块的实现即可。
+未配置对应密钥时自动回退到内存实现（适合本地演示；多实例不共享、重启即清空）。
+
+**上线前必须：**
+1. 在 Supabase SQL Editor 依次执行 `supabase/schema.sql`（代码知识库）与 `supabase/schema-persistence.sql`（配置 / 用户 / 私聊 / 用量表）。
+2. 配置 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`（仅服务端）与 `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`。
+3. 建议：`site_settings` 目前以 JSON 明文保存敏感字段（SMTP 密码 / API Key），生产环境建议先用 `ENCRYPTION_KEY` 加密后再入库（后续可增强）。
 
 ---
 
@@ -114,5 +125,5 @@ npm start   # 验证生产构建，访问 http://localhost:3000
 - [ ] 配置 SPF / DKIM，用 mail-tester 验证送达率
 - [ ] 配置 `NEXT_PUBLIC_SITE_URL` 为正式域名
 - [ ] 把 `/content` 下的示例数据替换为真实信息
-- [ ] 将内存实现替换为 Supabase + Upstash（见第六节）
+- [ ] 在 Supabase 执行 `supabase/schema.sql` 与 `supabase/schema-persistence.sql` 建表（见第六节）
 - [ ] 复核隐私政策 `/privacy` 内容是否与实际数据处理一致

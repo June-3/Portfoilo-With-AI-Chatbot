@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, message: "邮箱或验证码不能为空。" }, { status: 400 });
   }
 
-  const ok = verifyCode(email, code);
+  const ok = await verifyCode(email, code);
   if (!ok) {
     return Response.json(
       { ok: false, message: "验证码错误或已过期。" },

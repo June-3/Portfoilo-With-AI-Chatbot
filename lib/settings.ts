@@ -1,18 +1,18 @@
+import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabase";
+
 /**
  * 站点运行时配置（站长后台可编辑）。
  * Runtime site configuration (editable in the admin panel).
  *
- * 初始值来自环境变量（.env.local）。站长在后台修改后保存在内存中，立即生效；
- * 重启服务后回落到环境变量初值。
- * Initial values come from environment variables. Admin edits take effect
- * immediately in memory, then fall back to env values after a restart.
+ * 初始值来自环境变量（.env.local）。配置持久化到 Supabase（site_settings 表），
+ * 后台修改后写入内存并保存；冷启动时先从 Supabase 加载（未配置则用环境变量初值）。
+ * Initial values come from environment variables. Settings persist to Supabase
+ * (site_settings table); admin edits update memory and save; on cold start they
+ * hydrate from Supabase (or fall back to env values when Supabase is unset).
  *
- * 说明：生产环境应将这些配置持久化到数据库（Supabase），并对敏感字段
- * （SMTP 密码、AI API Key）加密存储。当前为内存实现，敏感字段不会返回给前端，
- * 前端只看到「已设置」状态。
- * Note: production should persist these in a database (Supabase) and encrypt the
- * sensitive fields (SMTP password, AI API key). For now they live in memory and
- * are never exposed to the frontend — it only sees a "set / not set" status.
+ * 敏感字段（SMTP 密码、AI API Key）不会返回给前端，前端只看到「已设置」状态。
+ * Sensitive fields (SMTP password, AI API key) are never exposed to the frontend —
+ * it only sees a "set / not set" status.
  */
 
 export interface Settings {
@@ -76,9 +76,41 @@ function loadInitialSettings(): Settings {
 }
 
 let settings: Settings = loadInitialSettings();
+let hydrated = false;
 
 export function getSettings(): Settings {
   return settings;
+}
+
+/** 冷启动时从 Supabase 加载已保存配置（幂等，只加载一次）。/ Hydrate persisted settings from Supabase (idempotent, once). */
+export async function hydrateSettings(): Promise<void> {
+  if (hydrated || !isSupabaseConfigured()) return;
+  hydrated = true;
+  try {
+    const supabase = getSupabaseAdmin()!;
+    const { data } = await supabase
+      .from("site_settings")
+      .select("data")
+      .eq("id", 1)
+      .maybeSingle();
+    if (data?.data && typeof data.data === "object") {
+      settings = { ...settings, ...(data.data as Partial<Settings>) };
+    }
+  } catch (err) {
+    console.error("[settings] 从 Supabase 加载失败，使用默认值 / load failed, using defaults:", err);
+  }
+}
+
+async function saveSettingsToDb(): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+  try {
+    const supabase = getSupabaseAdmin()!;
+    await supabase
+      .from("site_settings")
+      .upsert({ id: 1, data: settings, updated_at: new Date().toISOString() });
+  } catch (err) {
+    console.error("[settings] 写入 Supabase 失败 / write failed:", err);
+  }
 }
 
 /** 返回给前端的安全视图：敏感字段只暴露「是否已设置」。 */
@@ -136,7 +168,7 @@ export interface SettingsUpdate
   deepseekApiKey?: string;
 }
 
-export function updateSettings(update: SettingsUpdate): void {
+export async function updateSettings(update: SettingsUpdate): Promise<void> {
   const { smtpPass, deepseekApiKey, ...rest } = update;
 
   // 过滤掉 undefined/null 字段，避免覆盖已有值
@@ -153,6 +185,8 @@ export function updateSettings(update: SettingsUpdate): void {
       ? { deepseekApiKey: deepseekApiKey.trim() }
       : {}),
   };
+
+  await saveSettingsToDb();
 }
 
 /** 简单模板渲染：替换 {key} 占位符。 */

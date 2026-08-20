@@ -7,5 +7,5 @@ export async function GET(request: Request) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  return Response.json(getDailyStats(14));
+  return Response.json(await getDailyStats(14));
 }
