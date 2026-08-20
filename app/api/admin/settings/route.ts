@@ -43,6 +43,7 @@ export async function POST(request: Request) {
     kbStrongScore: body.kbStrongScore != null ? Number(body.kbStrongScore) : undefined,
     codeScoreThreshold:
       body.codeScoreThreshold != null ? Number(body.codeScoreThreshold) : undefined,
+    maxReplyTokens: body.maxReplyTokens != null ? Number(body.maxReplyTokens) : undefined,
   };
 
   await updateSettings(update);

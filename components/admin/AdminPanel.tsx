@@ -240,6 +240,7 @@ interface PublicSettings {
   loggedInDailyLimit: number;
   kbStrongScore: number;
   codeScoreThreshold: number;
+  maxReplyTokens: number;
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
   userConfirmationSubject: string;
@@ -277,6 +278,7 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
         loggedInDailyLimit: String(data.loggedInDailyLimit ?? 10000),
         kbStrongScore: String(data.kbStrongScore ?? 2),
         codeScoreThreshold: String(data.codeScoreThreshold ?? 0.25),
+        maxReplyTokens: String(data.maxReplyTokens ?? 1500),
         verificationEmailSubject: data.verificationEmailSubject ?? "",
         verificationEmailTemplate: data.verificationEmailTemplate ?? "",
         userConfirmationSubject: data.userConfirmationSubject ?? "",
@@ -322,6 +324,7 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
           loggedInDailyLimit: Number(form.loggedInDailyLimit) || 0,
           kbStrongScore: Number(form.kbStrongScore) || 2,
           codeScoreThreshold: Number(form.codeScoreThreshold) || 0.25,
+          maxReplyTokens: Number(form.maxReplyTokens) || 1500,
           verificationEmailSubject: form.verificationEmailSubject,
           verificationEmailTemplate: form.verificationEmailTemplate,
           userConfirmationSubject: form.userConfirmationSubject,
@@ -440,6 +443,19 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
             />
             <span className="mt-1 block text-xs font-normal text-muted">
               {t("admin.codeScoreThresholdHint")}
+            </span>
+          </label>
+          <label className="text-sm sm:col-span-2">
+            {t("admin.maxReplyTokens")}
+            <input
+              className={inputCls}
+              value={form.maxReplyTokens}
+              onChange={(e) => setField("maxReplyTokens", e.target.value)}
+              inputMode="numeric"
+              min="100"
+            />
+            <span className="mt-1 block text-xs font-normal text-muted">
+              {t("admin.maxReplyTokensHint")}
             </span>
           </label>
         </div>

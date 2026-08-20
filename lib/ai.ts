@@ -26,6 +26,9 @@ const FALLBACK_ZH =
 const FALLBACK_EN =
   "Sorry, I couldn't find anything directly related to this question in the site owner's personal knowledge base or the uploaded code repository. You might try rephrasing your question—for example: What features does this project have? Which projects use certain frameworks? As the AI assistant he developed, what can you do and how are you implemented? I will answer based on the uploaded code.";
 
+const TRUNCATED_ZH = "\n\n（回复超出长度限制，已截断）";
+const TRUNCATED_EN = "\n\n(Reply exceeded the length limit and was truncated.)";
+
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
@@ -118,7 +121,7 @@ async function generateAnswer(
         model: settings.deepseekModel,
         messages,
         temperature: 0.7,
-        max_tokens: 800,
+        max_tokens: settings.maxReplyTokens,
         stream: false,
       }),
       signal: AbortSignal.timeout(30_000),
@@ -130,11 +133,15 @@ async function generateAnswer(
     }
 
     const data = await response.json();
-    const reply: string | undefined = data?.choices?.[0]?.message?.content?.trim();
+    let reply: string = data?.choices?.[0]?.message?.content?.trim() ?? "";
+    // 达到 max_tokens 上限被截断时给出提示 / Mark replies truncated by the token limit.
+    if (data?.choices?.[0]?.finish_reason === "length" && reply) {
+      reply += lang === "en" ? TRUNCATED_EN : TRUNCATED_ZH;
+    }
     const usage: number =
       typeof data?.usage?.total_tokens === "number"
         ? data.usage.total_tokens
-        : estimateTokens(query + context + (reply ?? ""));
+        : estimateTokens(query + context + reply);
 
     if (!reply) throw new Error("DeepSeek returned empty content");
 

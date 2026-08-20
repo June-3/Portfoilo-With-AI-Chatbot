@@ -179,6 +179,8 @@ const zh: TranslationDict = {
   "admin.kbStrongScoreHint": "个人简介知识库命中分数 ≥ 此值才直接回答（数值越大越严格，越小越宽松）",
   "admin.codeScoreThreshold": "代码相似度阈值",
   "admin.codeScoreThresholdHint": "上传代码的向量相似度 ≥ 此值（0–1）才作为回答依据（越低越宽容，可能误答）",
+  "admin.maxReplyTokens": "AI 最大回复长度（token）",
+  "admin.maxReplyTokensHint": "单次回答最多生成的 token 数。越大越不容易被截断，但可能更耗 token（上限按模型而定）",
   "chat.tokensUsed": "本次消耗 {count} tokens",
 };
 
@@ -337,6 +339,8 @@ const en: TranslationDict = {
   "admin.kbStrongScoreHint": "Answer from the profile KB only when its hit score is ≥ this value (higher = stricter, lower = more lenient)",
   "admin.codeScoreThreshold": "Code similarity threshold",
   "admin.codeScoreThresholdHint": "Uploaded-code chunks are used only when vector similarity ≥ this value (0–1; lower = more tolerant, may answer off-topic)",
+  "admin.maxReplyTokens": "AI max reply length (tokens)",
+  "admin.maxReplyTokensHint": "Max tokens per reply. Higher = less truncation but potentially more tokens consumed (bounded by the model's limit)",
   "chat.tokensUsed": "This turn used {count} tokens",
 };
 

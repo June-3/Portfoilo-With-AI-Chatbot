@@ -29,9 +29,9 @@ if (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) {
 
 // Supabase tables
 if (env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY) {
-  for (const table of ["site_settings", "users", "private_requests", "usage_stats"]) {
+  for (const [table, col] of [["site_settings", "id"], ["users", "id"], ["private_requests", "id"], ["usage_stats", "date"]]) {
     try {
-      const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${table}?select=id&limit=1`, {
+      const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${table}?select=${col}&limit=1`, {
         headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
         signal: AbortSignal.timeout(15000),
       });

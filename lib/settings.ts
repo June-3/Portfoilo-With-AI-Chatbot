@@ -35,6 +35,8 @@ export interface Settings {
   kbStrongScore: number;
   /** 代码向量相似度阈值（0–1）/ Code vector-similarity threshold (0–1). */
   codeScoreThreshold: number;
+  /** AI 单次回复最大 token 数（达到会截断）/ Max tokens per AI reply (truncates when reached). */
+  maxReplyTokens: number;
   // 邮件模板
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
@@ -62,6 +64,7 @@ function loadInitialSettings(): Settings {
 
     kbStrongScore: Number(process.env.KB_STRONG_SCORE ?? 2),
     codeScoreThreshold: Number(process.env.CODE_SCORE_THRESHOLD ?? 0.25),
+    maxReplyTokens: Number(process.env.MAX_REPLY_TOKENS ?? 1500),
 
     verificationEmailSubject: "Your Login Verification Code of Portfolio Page",
     verificationEmailTemplate:
@@ -128,6 +131,7 @@ export interface PublicSettings {
   loggedInDailyLimit: number;
   kbStrongScore: number;
   codeScoreThreshold: number;
+  maxReplyTokens: number;
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
   userConfirmationSubject: string;
@@ -152,6 +156,7 @@ export function getPublicSettings(): PublicSettings {
     loggedInDailyLimit: s.loggedInDailyLimit,
     kbStrongScore: s.kbStrongScore,
     codeScoreThreshold: s.codeScoreThreshold,
+    maxReplyTokens: s.maxReplyTokens,
     verificationEmailSubject: s.verificationEmailSubject,
     verificationEmailTemplate: s.verificationEmailTemplate,
     userConfirmationSubject: s.userConfirmationSubject,
