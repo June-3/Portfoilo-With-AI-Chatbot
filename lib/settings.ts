@@ -63,15 +63,15 @@ function loadInitialSettings(): Settings {
     kbStrongScore: Number(process.env.KB_STRONG_SCORE ?? 2),
     codeScoreThreshold: Number(process.env.CODE_SCORE_THRESHOLD ?? 0.25),
 
-    verificationEmailSubject: "你的登录验证码",
+    verificationEmailSubject: "Your Login Verification Code of Portfolio Page",
     verificationEmailTemplate:
-      "你的验证码是：{code}，10 分钟内有效。如果不是你本人操作，请忽略此邮件。",
-    userConfirmationSubject: "已收到你的私聊申请",
+      "Your verification code is: {code}, valid for 10 minutes. If this wasn't you, please ignore this email. Do not share this code with anyone.",
+    userConfirmationSubject: "Your Private Message Request Has Been Received",
     userConfirmationTemplate:
-      "你好，\n\n已收到你的私聊申请，我会尽快通过邮箱回复你。\n\n感谢你的关注。",
-    ownerNotificationSubject: "【作品集】新的私聊申请",
+      "Hello,\n\nI've received your private message request and will respond via email as soon as possible.\n\nThank you for your interest.",
+    ownerNotificationSubject: "【Portfolio Page】New Private Message Request",
     ownerNotificationTemplate:
-      "收到一条新的私聊申请：\n\n- 访客邮箱：{email}\n- 意向标签：{intent}\n- 时间：{time}\n\n完整对话见附件。",
+      "Received a new private message request:\n\n- Visitor Email: {email}\n- Intent Tag: {intent}\n- Time: {time}\n\nSee the full conversation in the attachment.",
   };
 }
 
