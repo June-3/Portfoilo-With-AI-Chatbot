@@ -241,16 +241,26 @@ export interface RetrievedChunk {
 /** 检索置信度阈值：分数低于此值视为「知识库无相关内容」。/ Below this score, the query is treated as out-of-scope. */
 const SCORE_THRESHOLD = 1;
 
-/** 英文停用词：避免「about/Tell」等常见词造成误命中。/ English stop words: avoid false hits from common words. */
+/** 英文停用词：避免「about/Tell/he」等常见词造成误命中。/ English stop words: avoid false hits from common words. */
 const STOP_WORDS = new Set([
   "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
   "do", "does", "did", "have", "has", "had", "what", "which", "how", "where",
   "when", "who", "why", "of", "to", "in", "on", "at", "for", "with", "by",
   "from", "as", "than", "then", "this", "that", "these", "those", "it", "its",
-  "his", "her", "their", "your", "my", "me", "you", "we", "they", "and", "or",
-  "but", "not", "no", "yes", "about", "tell", "please", "can", "could", "would",
-  "will", "there", "here", "if", "so", "etc",
+  "he", "she", "him", "his", "her", "their", "your", "my", "me", "you", "we",
+  "they", "and", "or", "but", "not", "no", "yes", "about", "tell", "please",
+  "can", "could", "would", "will", "there", "here", "if", "so", "etc",
+  "good", "any", "all", "some", "very", "just", "really", "thing", "things",
 ]);
+
+/** 是否纯 ASCII（英文关键词按整词匹配，中文按子串匹配）。/ ASCII-only keywords match as whole words. */
+function isAscii(s: string): boolean {
+  return /^[\x00-\x7F]*$/.test(s);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export function retrieveChunks(
   query: string,
@@ -273,8 +283,15 @@ export function retrieveChunks(
       const k = kw.toLowerCase();
       // 跳过停用词，避免常见词误命中 / Skip stop words to avoid false positives.
       if (!k || k.length < 2 || STOP_WORDS.has(k)) continue;
-      if (q.includes(k)) score += 2;
-      else if (k.length >= 4 && q.length >= 2 && k.includes(q)) score += 1;
+
+      if (isAscii(k)) {
+        // 英文按整词匹配，避免 "he" 命中 "weather" 里的 "he" / Whole-word match for English.
+        const re = new RegExp(`\\b${escapeRegExp(k)}\\b`);
+        if (re.test(q)) score += 2;
+      } else {
+        if (q.includes(k)) score += 2;
+        else if (k.length >= 4 && q.length >= 2 && k.includes(q)) score += 1;
+      }
     }
 
     if (score >= SCORE_THRESHOLD) scored.push({ chunk, score });
