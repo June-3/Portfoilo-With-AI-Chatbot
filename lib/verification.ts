@@ -99,8 +99,10 @@ export async function verifyCode(email: string, code: string): Promise<boolean> 
   if (isRedisConfigured()) {
     try {
       const redis = getRedis()!;
-      const stored = await redis.get<string>(codeKey(normalized));
-      if (stored !== trimmed) return false;
+      const stored = await redis.get(codeKey(normalized));
+      // Upstash 会把纯数字字符串解析成 number，比较前统一转字符串 / Upstash parses
+      // numeric strings as numbers, so coerce to string before comparing.
+      if (stored == null || String(stored) !== trimmed) return false;
       await redis.del(codeKey(normalized));
       return true;
     } catch (err) {
