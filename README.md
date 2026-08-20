@@ -7,7 +7,7 @@ A personal-portfolio website that showcases experience, projects and skills, plu
 
 ## Features
 
-- **Portfolio**: Hero, About Me, Projects (with category filtering), Skills, Experience Timeline, Contact. Content is decoupled from code (edit JSON files under `/content` to update; also supports a graphical admin interface at `/admin` for content editing).
+- **Portfolio**: Hero, About Me, Projects (with category filtering), Skills, Experience Timeline, Contact. Content is decoupled from code (edit JSON files under `/content` to update).
 
 - **AI Assistant**: DeepSeek + lightweight RAG (personal knowledge base) + (uploaded code knowledge base). Sets knowledge boundaries and returns preset rejection responses for irrelevant questions.
 
