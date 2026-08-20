@@ -2,6 +2,7 @@ import { answerQuestion, type ChatMessage } from "@/lib/ai";
 import { getQuota, hasQuota, recordUsage } from "@/lib/quota";
 import { isBlocked } from "@/lib/blacklist";
 import { recordRequest } from "@/lib/stats";
+import { verifyAdminToken } from "@/lib/admin-auth";
 import type { Lang } from "@/lib/i18n";
 
 interface ChatRequestBody {
@@ -9,6 +10,7 @@ interface ChatRequestBody {
   anonymousId?: string;
   email?: string;
   lang?: string;
+  adminToken?: string;
   history?: { role: "user" | "assistant"; content: string }[];
 }
 
@@ -56,16 +58,10 @@ export async function POST(request: Request) {
   const isLoggedIn = email !== "";
   const quotaId = isLoggedIn ? `user:${email}` : `anon:${anonymousId}`;
 
-  if (!(await hasQuota(quotaId, isLoggedIn))) {
-    return Response.json(
-      {
-        error: "quota_exceeded",
-        message: "You have exceeded your daily quota. Please try again tomorrow, or sign in to increase your daily limit.",
-        quota: await getQuota(quotaId, isLoggedIn),
-      },
-      { status: 429 },
-    );
-  }
+  // 站长 / admin 登录者不受每日限额限制（客户端携带后台 token，服务端校验）
+  // Admin (owner) users are exempt from the daily quota; the backend validates the admin token.
+  const adminToken = typeof body.adminToken === "string" ? body.adminToken : "";
+  const isAdmin = Boolean(adminToken && verifyAdminToken(adminToken));
 
   const history: ChatMessage[] = Array.isArray(body.history)
     ? body.history
@@ -77,6 +73,28 @@ export async function POST(request: Request) {
         )
         .map((m) => ({ role: m.role, content: m.content }))
     : [];
+
+  if (isAdmin) {
+    const result = await answerQuestion(message, history, lang);
+    await recordRequest(result.tokenUsage); // 用量统计仍记录 / usage stats are still recorded
+    return Response.json({
+      reply: result.reply,
+      quota: { usedTokens: 0, dailyLimit: 0, remainingPercent: 100 },
+      quotaUnlimited: true,
+      tokensUsed: result.tokenUsage,
+    });
+  }
+
+  if (!(await hasQuota(quotaId, isLoggedIn))) {
+    return Response.json(
+      {
+        error: "quota_exceeded",
+        message: "You have exceeded your daily quota. Please try again tomorrow, or sign in to increase your daily limit.",
+        quota: await getQuota(quotaId, isLoggedIn),
+      },
+      { status: 429 },
+    );
+  }
 
   const result = await answerQuestion(message, history, lang);
   const quota = await recordUsage(quotaId, result.tokenUsage, isLoggedIn);

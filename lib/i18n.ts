@@ -60,6 +60,7 @@ const zh: TranslationDict = {
   // 聊天 / chat
   "chat.title": "AI 助手",
   "chat.quota": "今日剩余额度：{percent}%",
+  "chat.unlimited": "无限额度（站长）",
   "chat.greeting": "你好！我是站长的 AI 助手，可以问我关于他的经历、项目与技能。",
   "chat.quick1": "介绍一下他的项目",
   "chat.quick2": "他擅长什么技术",
@@ -224,6 +225,7 @@ const en: TranslationDict = {
 
   "chat.title": "AI Assistant",
   "chat.quota": "Daily quota left: {percent}%",
+  "chat.unlimited": "Unlimited (owner)",
   "chat.greeting": "Hi! I'm the owner's AI assistant. Ask me about his experience, projects, and skills.",
   "chat.quick1": "Tell me about his projects",
   "chat.quick2": "What is he good at?",

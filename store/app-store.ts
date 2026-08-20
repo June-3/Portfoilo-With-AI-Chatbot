@@ -24,6 +24,31 @@ export function loadPersistedLanguage(): Lang {
   }
 }
 
+// ---- 登录态持久化（localStorage，同一设备刷新后保持登录）/ persisted login ----
+
+const USER_STORAGE_KEY = "portfolio_user";
+
+function persistUser(user: AuthUser): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** 读取已保存的登录态（供客户端水合使用）。/ Read the persisted login state. */
+export function loadPersistedUser(): AuthUser {
+  if (typeof window === "undefined") return { ...initialUser };
+  try {
+    const raw = window.localStorage.getItem(USER_STORAGE_KEY);
+    if (raw) return { ...initialUser, ...(JSON.parse(raw) as Partial<AuthUser>) };
+  } catch {
+    /* ignore */
+  }
+  return { ...initialUser };
+}
+
 /**
  * Shared client-side state for the whole site.
  *
@@ -85,6 +110,8 @@ export interface AppState {
   user: AuthUser;
   setUser: (patch: Partial<AuthUser>) => void;
   logout: () => void;
+  /** 挂载后从 localStorage 恢复登录态 / Hydrate login state from localStorage on mount. */
+  hydrateUser: () => void;
 
   // ---- Daily token quota ------------------------------------------------
   quota: QuotaInfo;
@@ -139,22 +166,39 @@ export const useAppStore = create<AppState>()((set) => ({
     ),
 
   completeLogin: (user) =>
-    set((s) => ({
-      user: {
+    set((s) => {
+      const merged = {
         ...user,
         hasSubmittedRequest: s.user.hasSubmittedRequest || user.hasSubmittedRequest,
-      },
-      isLoginOpen: false,
-      isPrivateRequestOpen: s.pendingPrivateRequest,
-      pendingPrivateRequest: false,
-    })),
+      };
+      persistUser(merged);
+      return {
+        user: merged,
+        isLoginOpen: false,
+        isPrivateRequestOpen: s.pendingPrivateRequest,
+        pendingPrivateRequest: false,
+      };
+    }),
 
   markRequestSubmitted: () =>
-    set((s) => ({ user: { ...s.user, hasSubmittedRequest: true } })),
+    set((s) => {
+      const user = { ...s.user, hasSubmittedRequest: true };
+      persistUser(user);
+      return { user };
+    }),
 
   user: initialUser,
-  setUser: (patch) => set((s) => ({ user: { ...s.user, ...patch } })),
-  logout: () => set({ user: initialUser }),
+  setUser: (patch) =>
+    set((s) => {
+      const user = { ...s.user, ...patch };
+      persistUser(user);
+      return { user };
+    }),
+  logout: () => {
+    persistUser({ ...initialUser });
+    set({ user: { ...initialUser } });
+  },
+  hydrateUser: () => set({ user: loadPersistedUser() }),
 
   quota: initialQuota,
   setQuota: (patch) => set((s) => ({ quota: { ...s.quota, ...patch } })),

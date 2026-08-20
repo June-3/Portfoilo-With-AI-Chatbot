@@ -1,6 +1,5 @@
 import { promises as fs, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   getExperience,
   getProfile,
@@ -50,16 +49,16 @@ async function loadFaq(): Promise<FaqEntry[]> {
 }
 
 // ---------- 停用词加载 ----------
-// 从同目录下的 hit_stopwords_zh.txt 和 hit_stopwords_en.txt 读取停用词
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
+// 从 lib/hit_stopwords_zh.txt 和 hit_stopwords_en.txt 读取停用词
+// 注意：用 process.cwd() 静态作用域路径，避免 __dirname 导致 Turbopack 全量追踪
+// Note: use a process.cwd()-scoped path so Turbopack doesn't trace the whole project.
 function loadStopWordsSync(): Set<string> {
   const stopWords = new Set<string>();
   const files = ["hit_stopwords_zh.txt", "hit_stopwords_en.txt"];
 
   for (const filename of files) {
     try {
-      const filePath = path.join(__dirname, filename);
+      const filePath = path.join(process.cwd(), "lib", filename);
       const content = readFileSync(filePath, "utf-8");
       content
         .split(/\r?\n/)

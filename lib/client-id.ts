@@ -6,6 +6,7 @@
  */
 
 const KEY = "portfolio_anonymous_id";
+const ADMIN_TOKEN_KEY = "portfolio_admin_token";
 
 export function getAnonymousId(): string {
   if (typeof window === "undefined") return "";
@@ -20,6 +21,16 @@ export function getAnonymousId(): string {
   } catch {
     // localStorage 不可用时（如隐私模式）回退到一次性 ID
     return generateId();
+  }
+}
+
+/** 读取后台登录 token（用于聊天不限额校验）。/ Read the admin token (chat quota exemption). */
+export function getAdminToken(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return window.localStorage.getItem(ADMIN_TOKEN_KEY) ?? "";
+  } catch {
+    return "";
   }
 }
 

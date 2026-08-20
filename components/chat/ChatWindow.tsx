@@ -7,7 +7,7 @@ import {
   selectRemainingPercent,
   type ChatMessage,
 } from "@/store/app-store";
-import { getAnonymousId } from "@/lib/client-id";
+import { getAdminToken, getAnonymousId } from "@/lib/client-id";
 import { useTranslations } from "@/lib/use-translations";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +29,7 @@ export default function ChatWindow() {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quotaUnlimited, setQuotaUnlimited] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -70,10 +71,12 @@ export default function ChatWindow() {
           anonymousId: getAnonymousId(),
           email: user.email ?? "",
           lang,
+          adminToken: getAdminToken(),
         }),
       });
       const data = await res.json();
 
+      setQuotaUnlimited(data?.quotaUnlimited === true);
       if (data?.quota) {
         setQuota({
           usedTokens: data.quota.usedTokens,
@@ -116,7 +119,7 @@ export default function ChatWindow() {
           <div>
             <p className="text-sm font-semibold">{t("chat.title")}</p>
             <p className="text-xs text-muted">
-              {t("chat.quota", { percent: remainingPercent })}
+              {quotaUnlimited ? t("chat.unlimited") : t("chat.quota", { percent: remainingPercent })}
             </p>
           </div>
         </div>

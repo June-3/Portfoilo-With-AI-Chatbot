@@ -7,7 +7,7 @@ import ChatWindow from "@/components/chat/ChatWindow";
 import FloatingChatButton from "@/components/chat/FloatingChatButton";
 import LoginModal from "@/components/auth/LoginModal";
 import PrivateRequestModal from "@/components/auth/PrivateRequestModal";
-import LanguageHydration from "@/components/LanguageHydration";
+import ClientHydration from "@/components/ClientHydration";
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col">
-        <LanguageHydration />
+        <ClientHydration />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
