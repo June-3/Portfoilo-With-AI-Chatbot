@@ -7,7 +7,7 @@
     "description_en": "Solo full-stack project: a content-decoupled portfolio site with an AI chat assistant (DeepSeek + lightweight RAG + pgvector code knowledge base), email-verification login, private-chat requests with automated emails (SMTP), and an owner admin panel (settings, requests, blacklist, usage stats, code ingestion). Bilingual (EN/ZH), persisted with Supabase and Upstash Redis.",
     "techStack": ["Next.js", "TypeScript", "Tailwind CSS", "Zustand", "DeepSeek API", "RAG", "Supabase", "Upstash Redis", "nodemailer"],
     "image": "",
-    "liveUrl": "",
+    "liveUrl": "https://portfoilo-with-ai-chatbot.vercel.app/",
     "githubUrl": "https://github.com/June-3/Protfoilo-With-AI-Chatbot",
     "featured": true,
     "category": "全栈开发",
