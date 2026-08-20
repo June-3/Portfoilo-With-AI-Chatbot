@@ -44,7 +44,7 @@ npm run dev
 
 ## 可修改内容
 
-内容与代码分离，无需改代码即可更新 **[docs/content-guide.md](docs/content-guide.md)**：
+内容与代码分离，无需改代码即可更新 **[docs/content-guide.zh.md](docs/content-guide.zh.md)**：
 
 - 个人信息 · Profile → `content/profile.json`
 - 项目 · Projects → `content/projects.json`
@@ -74,7 +74,7 @@ npm run dev
 
 ## 部署
 
-详见 **[docs/deployment.md](docs/deployment.md)**：环境变量清单、Vercel 部署步骤、SPF/DKIM 配置、Supabase/Upstash 生产接入、上线检查清单。
+详见 **[docs/deployment.zh.md](docs/deployment.zh.md)**：环境变量清单、Vercel 部署步骤、SPF/DKIM 配置、Supabase/Upstash 生产接入、上线检查清单。
 
 
 ---

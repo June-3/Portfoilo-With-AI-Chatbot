@@ -82,7 +82,7 @@ See **[docs/deployment.md](docs/deployment.md)**: Environment variable list, Ver
 
 ---
 
-## 目录结构 · Project Structure
+## Project Structure
 
 ```
 app/                  # Page routes (Home/About/Projects/Skills/Privacy/Admin)

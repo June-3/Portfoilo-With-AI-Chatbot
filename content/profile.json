@@ -1,6 +1,6 @@
 {
-  "name": "张三",
-  "name_en": "Zhang San",
+  "name": "某某",
+  "name_en": "Mr. Unknown",
   "title": "全栈开发工程师",
   "title_en": "Full-Stack Developer",
   "headline": "热爱构建优雅、高效的 Web 应用，关注用户体验与工程质量。",
@@ -8,7 +8,7 @@
   "avatar": "/content/images/avatar.svg",
   "bio": "拥有 5 年全栈开发经验，专注于 React 和 Node.js。曾主导多个从 0 到 1 的产品开发，熟悉前后端协作、性能优化与工程化实践。",
   "bio_en": "5+ years of full-stack experience focused on React and Node.js. Led several 0-to-1 products and is experienced in frontend/backend collaboration, performance tuning, and engineering best practices.",
-  "location": "上海",
-  "location_en": "Shanghai",
-  "email": "zhangsan@example.com"
+  "location": "地球",
+  "location_en": "Earth",
+  "email": "FromEarth@example.com"
 }

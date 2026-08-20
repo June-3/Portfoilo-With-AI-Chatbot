@@ -8,7 +8,7 @@
     "techStack": ["Next.js", "Tailwind CSS", "Vercel"],
     "image": "",
     "liveUrl": "https://blog.example.com",
-    "githubUrl": "https://github.com/zhangsan/blog",
+    "githubUrl": "",
     "featured": true,
     "category": "Web 开发",
     "category_en": "Web"
@@ -22,7 +22,7 @@
     "techStack": ["DeepSeek API", "Python", "LangChain"],
     "image": "",
     "liveUrl": "",
-    "githubUrl": "https://github.com/zhangsan/ai-qa",
+    "githubUrl": "",
     "featured": true,
     "category": "AI 应用",
     "category_en": "AI"
@@ -50,7 +50,7 @@
     "techStack": ["TypeScript", "Node.js"],
     "image": "",
     "liveUrl": "",
-    "githubUrl": "https://github.com/zhangsan/todo-cli",
+    "githubUrl": "",
     "featured": false,
     "category": "工具",
     "category_en": "Tools"
@@ -78,7 +78,7 @@
     "techStack": ["React", "WebSocket", "Redis"],
     "image": "",
     "liveUrl": "https://whiteboard.example.com",
-    "githubUrl": "https://github.com/zhangsan/whiteboard",
+    "githubUrl": "",
     "featured": true,
     "category": "Web 开发",
     "category_en": "Web"
