@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     body = (await request.json()) as ChatRequestBody;
   } catch {
     return Response.json(
-      { error: "invalid_json", message: "请求体不是有效的 JSON。" },
+      { error: "invalid_json", message: "Invalid JSON format." },
       { status: 400 },
     );
   }
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   if (!message) {
     return Response.json(
-      { error: "empty_message", message: "消息不能为空。" },
+      { error: "empty_message", message: "Message cannot be empty." },
       { status: 400 },
     );
   }
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   // 黑名单检查（IP 或匿名 ID）/ Blacklist check (by IP or anonymous ID)
   if ((ip && isBlocked(ip)) || isBlocked(anonymousId)) {
     return Response.json(
-      { error: "blocked", message: "你已被限制使用 AI 助手。" },
+      { error: "blocked", message: "You have been blocked from using the AI assistant." },
       { status: 403 },
     );
   }
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     return Response.json(
       {
         error: "quota_exceeded",
-        message: "今日额度已用完，请明天再来，或登录后提高每日额度。",
+        message: "You have exceeded your daily quota. Please try again tomorrow, or sign in to increase your daily limit.",
         quota: getQuota(quotaId, isLoggedIn),
       },
       { status: 429 },
@@ -82,5 +82,5 @@ export async function POST(request: Request) {
   const quota = recordUsage(quotaId, result.tokenUsage, isLoggedIn);
   recordRequest(result.tokenUsage);
 
-  return Response.json({ reply: result.reply, quota });
+  return Response.json({ reply: result.reply, quota, tokensUsed: result.tokenUsage });
 }

@@ -43,7 +43,7 @@ export async function sendVerificationCode(
   const normalized = normalizeEmail(email);
 
   if (!EMAIL_RE.test(normalized)) {
-    return { ok: false, status: 400, message: "邮箱格式不正确。" };
+    return { ok: false, status: 400, message: "Invalid email format." };
   }
 
   const emailAllowed = checkRateLimit(
@@ -56,7 +56,7 @@ export async function sendVerificationCode(
     : true;
 
   if (!emailAllowed || !ipAllowed) {
-    return { ok: false, status: 429, message: "发送过于频繁，请稍后再试。" };
+    return { ok: false, status: 429, message: "Sending too frequently. Please try again later." };
   }
 
   const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -72,7 +72,7 @@ export async function sendVerificationCode(
   return {
     ok: true,
     status: 200,
-    message: "验证码已发送，请查收邮箱。",
+    message: "Verification code sent. Please check your email.",
     devCode: mail.mocked ? code : undefined,
   };
 }

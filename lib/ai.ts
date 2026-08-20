@@ -22,9 +22,9 @@ import {
  */
 
 const FALLBACK_ZH =
-  "抱歉，我在站长的个人知识库和你上传的代码库中都没有找到与这个问题直接相关的内容。你可以换个问法试试，例如：这个项目有哪些功能？某个功能在哪个文件？某个函数是怎么实现的？我会根据已上传的代码来回答。";
+  "抱歉，我在站长的个人知识库和上传的代码库中都没有找到与这个问题直接相关的内容。你可以换个问法试试，例如：这个项目有哪些功能？哪些项目使用了某些框架？你作为他开发的AI助手，能够做些什么，以及你的实现方式是什么？我会根据已上传的代码来回答。";
 const FALLBACK_EN =
-  "Sorry, I couldn't find anything directly related to this in the owner's profile knowledge base or your uploaded code. Try rephrasing, for example: What features does this project have? Where is a certain feature implemented? How does a certain function work? I can answer based on the uploaded code.";
+  "Sorry, I couldn't find anything directly related to this question in the site owner's personal knowledge base or the uploaded code repository. You might try rephrasing your question—for example: What features does this project have? Which projects use certain frameworks? As the AI assistant he developed, what can you do and how are you implemented? I will answer based on the uploaded code.";
 
 export interface ChatMessage {
   role: "user" | "assistant" | "system";
@@ -126,7 +126,7 @@ async function generateAnswer(
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`DeepSeek API 错误 ${response.status}: ${text.slice(0, 200)}`);
+      throw new Error(`DeepSeek API error ${response.status}: ${text.slice(0, 200)}`);
     }
 
     const data = await response.json();
@@ -136,11 +136,11 @@ async function generateAnswer(
         ? data.usage.total_tokens
         : estimateTokens(query + context + (reply ?? ""));
 
-    if (!reply) throw new Error("DeepSeek 返回内容为空");
+    if (!reply) throw new Error("DeepSeek returned empty content");
 
     return { reply, tokenUsage: usage, usedKnowledge: true };
   } catch (error) {
-    console.error("[ai] DeepSeek 调用失败，降级为检索内容：", error);
+    console.error("[ai] DeepSeek call failed, downgrading to retrieval:", error);
     return {
       reply: fallbackReply,
       tokenUsage: estimateTokens(query + fallbackReply),
@@ -149,20 +149,17 @@ async function generateAnswer(
   }
 }
 
-/** 知识库「强命中」分数阈值 / Strong KB-match score threshold. */
-const KB_STRONG_SCORE = 2;
-/** 代码向量检索相似度阈值（0–1）／Code vector-search similarity threshold (0–1). */
-const CODE_SCORE_THRESHOLD = 0.25;
-
 export async function answerQuestion(
   query: string,
   history: ChatMessage[],
   lang: Lang = "en",
 ): Promise<AnswerResult> {
+  const settings = getSettings();
+
   // 1) 个人简介知识库：仅强命中才采用 / Profile KB: use only on a strong match
   const chunks = await buildKnowledgeBase(lang);
   const kbHits = retrieveChunks(query, chunks, 4);
-  const kbStrong = kbHits.length > 0 && kbHits[0].score >= KB_STRONG_SCORE;
+  const kbStrong = kbHits.length > 0 && kbHits[0].score >= settings.kbStrongScore;
 
   if (kbStrong) {
     const context = kbHits
@@ -191,7 +188,7 @@ export async function answerQuestion(
   //    over the uploaded code, requiring a similarity threshold.
   if (isCodeRetrievalConfigured()) {
     const codeHits = await retrieveCodeChunks(query, 8);
-    const strongCode = codeHits.filter((h) => h.score >= CODE_SCORE_THRESHOLD);
+    const strongCode = codeHits.filter((h) => h.score >= settings.codeScoreThreshold);
     if (strongCode.length > 0) {
       const code = buildCodeContext(query, strongCode, lang);
       return generateAnswer(

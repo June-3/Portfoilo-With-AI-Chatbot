@@ -32,6 +32,9 @@ export async function POST(request: Request) {
       body.anonymousDailyLimit != null ? Number(body.anonymousDailyLimit) : undefined,
     loggedInDailyLimit:
       body.loggedInDailyLimit != null ? Number(body.loggedInDailyLimit) : undefined,
+    kbStrongScore: body.kbStrongScore != null ? Number(body.kbStrongScore) : undefined,
+    codeScoreThreshold:
+      body.codeScoreThreshold != null ? Number(body.codeScoreThreshold) : undefined,
   };
 
   updateSettings(update);

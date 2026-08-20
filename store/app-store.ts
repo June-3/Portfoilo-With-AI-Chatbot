@@ -53,6 +53,8 @@ export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
+  /** 本次回答消耗的 token 数（仅助手消息）／Tokens used for this reply (assistant only). */
+  tokensUsed?: number;
 }
 
 export interface AppState {

@@ -30,6 +30,11 @@ export interface Settings {
   // 每日额度
   anonymousDailyLimit: number;
   loggedInDailyLimit: number;
+  // RAG 检索阈值
+  /** 个人知识库「强命中」分数阈值 / Profile-KB strong-match score threshold. */
+  kbStrongScore: number;
+  /** 代码向量相似度阈值（0–1）/ Code vector-similarity threshold (0–1). */
+  codeScoreThreshold: number;
   // 邮件模板
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
@@ -54,6 +59,9 @@ function loadInitialSettings(): Settings {
 
     anonymousDailyLimit: Number(process.env.DAILY_TOKEN_LIMIT ?? 2000),
     loggedInDailyLimit: Number(process.env.LOGGED_IN_DAILY_LIMIT ?? 10000),
+
+    kbStrongScore: Number(process.env.KB_STRONG_SCORE ?? 2),
+    codeScoreThreshold: Number(process.env.CODE_SCORE_THRESHOLD ?? 0.25),
 
     verificationEmailSubject: "你的登录验证码",
     verificationEmailTemplate:
@@ -86,6 +94,8 @@ export interface PublicSettings {
   hasApiKey: boolean;
   anonymousDailyLimit: number;
   loggedInDailyLimit: number;
+  kbStrongScore: number;
+  codeScoreThreshold: number;
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
   userConfirmationSubject: string;
@@ -108,6 +118,8 @@ export function getPublicSettings(): PublicSettings {
     hasApiKey: Boolean(s.deepseekApiKey),
     anonymousDailyLimit: s.anonymousDailyLimit,
     loggedInDailyLimit: s.loggedInDailyLimit,
+    kbStrongScore: s.kbStrongScore,
+    codeScoreThreshold: s.codeScoreThreshold,
     verificationEmailSubject: s.verificationEmailSubject,
     verificationEmailTemplate: s.verificationEmailTemplate,
     userConfirmationSubject: s.userConfirmationSubject,

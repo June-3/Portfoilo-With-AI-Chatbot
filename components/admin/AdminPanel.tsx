@@ -238,6 +238,8 @@ interface PublicSettings {
   hasApiKey: boolean;
   anonymousDailyLimit: number;
   loggedInDailyLimit: number;
+  kbStrongScore: number;
+  codeScoreThreshold: number;
   verificationEmailSubject: string;
   verificationEmailTemplate: string;
   userConfirmationSubject: string;
@@ -273,6 +275,8 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
         deepseekModel: data.deepseekModel ?? "",
         anonymousDailyLimit: String(data.anonymousDailyLimit ?? 2000),
         loggedInDailyLimit: String(data.loggedInDailyLimit ?? 10000),
+        kbStrongScore: String(data.kbStrongScore ?? 2),
+        codeScoreThreshold: String(data.codeScoreThreshold ?? 0.25),
         verificationEmailSubject: data.verificationEmailSubject ?? "",
         verificationEmailTemplate: data.verificationEmailTemplate ?? "",
         userConfirmationSubject: data.userConfirmationSubject ?? "",
@@ -316,6 +320,8 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
           deepseekModel: form.deepseekModel,
           anonymousDailyLimit: Number(form.anonymousDailyLimit) || 0,
           loggedInDailyLimit: Number(form.loggedInDailyLimit) || 0,
+          kbStrongScore: Number(form.kbStrongScore) || 2,
+          codeScoreThreshold: Number(form.codeScoreThreshold) || 0.25,
           verificationEmailSubject: form.verificationEmailSubject,
           verificationEmailTemplate: form.verificationEmailTemplate,
           userConfirmationSubject: form.userConfirmationSubject,
@@ -407,6 +413,34 @@ function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void 
           <label className="text-sm">
             {t("admin.loggedInLimit")}
             <input className={inputCls} value={form.loggedInDailyLimit} onChange={(e) => setField("loggedInDailyLimit", e.target.value)} inputMode="numeric" />
+          </label>
+          <label className="text-sm sm:col-span-2">
+            {t("admin.kbStrongScore")}
+            <input
+              className={inputCls}
+              value={form.kbStrongScore}
+              onChange={(e) => setField("kbStrongScore", e.target.value)}
+              inputMode="decimal"
+              step="0.5"
+            />
+            <span className="mt-1 block text-xs font-normal text-muted">
+              {t("admin.kbStrongScoreHint")}
+            </span>
+          </label>
+          <label className="text-sm sm:col-span-2">
+            {t("admin.codeScoreThreshold")}
+            <input
+              className={inputCls}
+              value={form.codeScoreThreshold}
+              onChange={(e) => setField("codeScoreThreshold", e.target.value)}
+              inputMode="decimal"
+              step="0.05"
+              min="0"
+              max="1"
+            />
+            <span className="mt-1 block text-xs font-normal text-muted">
+              {t("admin.codeScoreThresholdHint")}
+            </span>
           </label>
         </div>
       </section>

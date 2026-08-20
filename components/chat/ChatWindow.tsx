@@ -88,6 +88,7 @@ export default function ChatWindow() {
           id: nextId(),
           role: "assistant",
           content: data.reply,
+          tokensUsed: data.tokensUsed,
         });
       }
     } catch {
@@ -152,7 +153,10 @@ export default function ChatWindow() {
         {conversation.map((m: ChatMessage) => (
           <div
             key={m.id}
-            className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+            className={cn(
+              "flex flex-col",
+              m.role === "user" ? "items-end" : "items-start",
+            )}
           >
             <div
               className={cn(
@@ -164,6 +168,11 @@ export default function ChatWindow() {
             >
               {m.content}
             </div>
+            {m.role === "assistant" && m.tokensUsed != null && (
+              <p className="mt-0.5 px-1 text-[10px] text-muted">
+                {t("chat.tokensUsed", { count: m.tokensUsed })}
+              </p>
+            )}
           </div>
         ))}
 
