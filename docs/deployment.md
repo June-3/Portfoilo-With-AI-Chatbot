@@ -13,13 +13,13 @@
 | --- | --- | --- | --- |
 | `DEEPSEEK_API_KEY` | 否* | DeepSeek 平台 API Key；不填则 AI 助手降级为知识库回答 | 空 |
 | `DEEPSEEK_BASE_URL` | 否 | DeepSeek API 地址 | `https://api.deepseek.com` |
-| `DEEPSEEK_MODEL` | 否 | 模型名称 | `deepseek-chat` |
-| `DAILY_TOKEN_LIMIT` | 否 | 匿名访客每日 token 限额 | `2000` |
-| `LOGGED_IN_DAILY_LIMIT` | 否 | 登录用户每日 token 限额 | `10000` |
+| `DEEPSEEK_MODEL` | 否 | 模型名称 | `deepseek-v4-flash` |
+| `DAILY_TOKEN_LIMIT` | 否 | 匿名访客每日 token 限额 | `10000` |
+| `LOGGED_IN_DAILY_LIMIT` | 否 | 登录用户每日 token 限额 | `50000` |
 | `ADMIN_PASSWORD` | **是** | 后台 `/admin` 登录密码（开发默认 `admin123`，生产务必修改） | `admin123` |
 | `SMTP_HOST` | 否* | SMTP 服务器地址 | 空 |
 | `SMTP_PORT` | 否 | SMTP 端口（465 为 SSL） | `465` |
-| `SMTP_USER` | 否* | SMTP 登录用户名 | 空 |
+| `SMTP_USER` | 否* | SMTP 登录用户名/具体邮件地址 | 空 |
 | `SMTP_PASS` | 否* | SMTP 密码 | 空 |
 | `SMTP_FROM` | 否 | 发件人地址 | 同 `SMTP_USER` |
 | `OWNER_EMAIL` | 否 | 站长接收私聊通知的邮箱 | 空 |
@@ -64,7 +64,7 @@ npm start   # 验证生产构建，访问 http://localhost:3000
 
 ## 五、邮件送达率（SPF / DKIM）——自配 SMTP
 
-你选择的是「站长自配 SMTP」，因此邮件送达率取决于你邮箱域名是否正确配置了 **SPF** 与 **DKIM** 记录。未配置时邮件很可能进入垃圾箱。
+本项目选择的是「站长自配 SMTP」，因此邮件送达率取决于你邮箱域名是否正确配置了 **SPF** 与 **DKIM** 记录。未配置时邮件很可能进入垃圾箱。
 
 以你的域名 `example.com`（实际请替换）为例，在域名 DNS 控制台添加：
 
