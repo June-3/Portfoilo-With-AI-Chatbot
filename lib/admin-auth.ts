@@ -10,7 +10,9 @@ import crypto from "node:crypto";
  * Tokens last 24 hours and only protect this site's admin panel.
  */
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+// 空串视为未设置（.env 里 ADMIN_PASSWORD= 时回退开发默认）/ Treat an empty string
+// as unset so an empty ADMIN_PASSWORD falls back to the dev default.
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD?.trim() || "admin123";
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 function sign(payload: string): string {

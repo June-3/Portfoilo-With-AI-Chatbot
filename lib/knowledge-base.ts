@@ -241,6 +241,17 @@ export interface RetrievedChunk {
 /** 检索置信度阈值：分数低于此值视为「知识库无相关内容」。/ Below this score, the query is treated as out-of-scope. */
 const SCORE_THRESHOLD = 1;
 
+/** 英文停用词：避免「about/Tell」等常见词造成误命中。/ English stop words: avoid false hits from common words. */
+const STOP_WORDS = new Set([
+  "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
+  "do", "does", "did", "have", "has", "had", "what", "which", "how", "where",
+  "when", "who", "why", "of", "to", "in", "on", "at", "for", "with", "by",
+  "from", "as", "than", "then", "this", "that", "these", "those", "it", "its",
+  "his", "her", "their", "your", "my", "me", "you", "we", "they", "and", "or",
+  "but", "not", "no", "yes", "about", "tell", "please", "can", "could", "would",
+  "will", "there", "here", "if", "so", "etc",
+]);
+
 export function retrieveChunks(
   query: string,
   chunks: KnowledgeChunk[],
@@ -260,8 +271,9 @@ export function retrieveChunks(
 
     for (const kw of chunk.keywords) {
       const k = kw.toLowerCase();
-      if (!k) continue;
-      if (k.length >= 2 && q.includes(k)) score += 2;
+      // 跳过停用词，避免常见词误命中 / Skip stop words to avoid false positives.
+      if (!k || k.length < 2 || STOP_WORDS.has(k)) continue;
+      if (q.includes(k)) score += 2;
       else if (k.length >= 4 && q.length >= 2 && k.includes(q)) score += 1;
     }
 

@@ -160,6 +160,20 @@ const zh: TranslationDict = {
   "admin.blacklistPlaceholder": "输入 IP 或匿名 ID 封禁",
   "admin.add": "添加",
   "admin.remove": "移除",
+
+  "admin.tab.codekb": "代码知识库",
+  "admin.codekb.subtitle": "上传 GitHub 仓库或 zip，将代码分块入库，用于 AI 代码问答。",
+  "admin.codekb.notConfigured": "未配置 Jina / Supabase，无法入库。请先在环境变量配置 JINA_API_KEY、SUPABASE_URL、SUPABASE_SERVICE_ROLE_KEY。",
+  "admin.codekb.githubUrl": "GitHub 仓库地址",
+  "admin.codekb.ingest": "入库",
+  "admin.codekb.ingesting": "入库中…",
+  "admin.codekb.orZip": "或上传 zip（≤3MB）",
+  "admin.codekb.upload": "上传入库",
+  "admin.codekb.projects": "已索引项目",
+  "admin.codekb.chunks": "{count} 个分块",
+  "admin.codekb.delete": "删除",
+  "admin.codekb.empty": "暂无已索引项目。",
+  "admin.codekb.result": "{projectId} 已入库，共 {count} 个分块。",
 };
 
 const en: TranslationDict = {
@@ -298,6 +312,20 @@ const en: TranslationDict = {
   "admin.blacklistPlaceholder": "Enter an IP or anonymous ID to block",
   "admin.add": "Add",
   "admin.remove": "Remove",
+
+  "admin.tab.codekb": "Code KB",
+  "admin.codekb.subtitle": "Upload a GitHub repo or zip to index its code for AI code Q&A.",
+  "admin.codekb.notConfigured": "Jina / Supabase not configured — ingestion is unavailable. Configure JINA_API_KEY, SUPABASE_URL, and SUPABASE_SERVICE_ROLE_KEY first.",
+  "admin.codekb.githubUrl": "GitHub repo URL",
+  "admin.codekb.ingest": "Ingest",
+  "admin.codekb.ingesting": "Ingesting…",
+  "admin.codekb.orZip": "or upload a zip (≤3MB)",
+  "admin.codekb.upload": "Upload & Ingest",
+  "admin.codekb.projects": "Indexed projects",
+  "admin.codekb.chunks": "{count} chunks",
+  "admin.codekb.delete": "Delete",
+  "admin.codekb.empty": "No indexed projects yet.",
+  "admin.codekb.result": "{projectId} indexed with {count} chunks.",
 };
 
 export const translations: Record<Lang, TranslationDict> = { zh, en };

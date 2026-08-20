@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   BarChart3,
+  FolderGit2,
   Inbox,
   Lock,
   LogOut,
@@ -17,7 +18,24 @@ import { useTranslations } from "@/lib/use-translations";
 
 const TOKEN_KEY = "portfolio_admin_token";
 
-type Tab = "settings" | "requests" | "stats" | "blacklist";
+type Tab = "settings" | "requests" | "stats" | "blacklist" | "codekb";
+
+/** 带鉴权的 fetch：遇到 401（token 失效）时自动登出。/ Authenticated fetch: auto-logout on 401. */
+async function authFetch(
+  path: string,
+  token: string,
+  onLogout: () => void,
+  options: RequestInit = {},
+): Promise<Response> {
+  const headers = new Headers(options.headers ?? {});
+  headers.set("Authorization", `Bearer ${token}`);
+  if (options.body && !(options.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  const res = await fetch(path, { ...options, headers });
+  if (res.status === 401) onLogout();
+  return res;
+}
 
 export default function AdminPanel() {
   const { t } = useTranslations();
@@ -145,7 +163,22 @@ function AdminDashboard({
     { id: "requests", key: "admin.tab.requests", Icon: Inbox },
     { id: "stats", key: "admin.tab.stats", Icon: BarChart3 },
     { id: "blacklist", key: "admin.tab.blacklist", Icon: ShieldBan },
+    { id: "codekb", key: "admin.tab.codekb", Icon: FolderGit2 },
   ];
+
+  // 挂载时校验 token：无效则自动登出 / Validate the token on mount; logout if stale.
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/settings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.status === 401) onLogout();
+      } catch {
+        // 网络错误时保持现状 / keep current state on network errors
+      }
+    })();
+  }, [token, onLogout]);
 
   return (
     <div>
@@ -181,10 +214,11 @@ function AdminDashboard({
       </div>
 
       <div className="mt-6">
-        {tab === "settings" && <SettingsTab token={token} />}
-        {tab === "requests" && <RequestsTab token={token} />}
-        {tab === "stats" && <StatsTab token={token} />}
-        {tab === "blacklist" && <BlacklistTab token={token} />}
+        {tab === "settings" && <SettingsTab token={token} onLogout={onLogout} />}
+        {tab === "requests" && <RequestsTab token={token} onLogout={onLogout} />}
+        {tab === "stats" && <StatsTab token={token} onLogout={onLogout} />}
+        {tab === "blacklist" && <BlacklistTab token={token} onLogout={onLogout} />}
+        {tab === "codekb" && <CodeKbTab token={token} onLogout={onLogout} />}
       </div>
     </div>
   );
@@ -212,7 +246,7 @@ interface PublicSettings {
   ownerNotificationTemplate: string;
 }
 
-function SettingsTab({ token }: { token: string }) {
+function SettingsTab({ token, onLogout }: { token: string; onLogout: () => void }) {
   const { t, lang } = useTranslations();
   const [form, setForm] = useState<Record<string, string> | null>(null);
   const [smtpPass, setSmtpPass] = useState("");
@@ -226,9 +260,8 @@ function SettingsTab({ token }: { token: string }) {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/settings", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch("/api/admin/settings", token, onLogout);
+      if (res.status === 401) return;
       const data: PublicSettings = await res.json();
       setForm({
         smtpHost: data.smtpHost ?? "",
@@ -271,12 +304,8 @@ function SettingsTab({ token }: { token: string }) {
     setSaving(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/admin/settings", {
+      const res = await authFetch("/api/admin/settings", token, onLogout, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           smtpHost: form.smtpHost,
           smtpPort: Number(form.smtpPort) || 465,
@@ -297,6 +326,7 @@ function SettingsTab({ token }: { token: string }) {
           deepseekApiKey: apiKey || undefined,
         }),
       });
+      if (res.status === 401) return;
       const data = await res.json();
       if (!res.ok) {
         setMessage(data?.message ?? t("chat.networkError"));
@@ -439,15 +469,14 @@ interface PrivateRequestView {
   createdAt: string;
 }
 
-function RequestsTab({ token }: { token: string }) {
+function RequestsTab({ token, onLogout }: { token: string; onLogout: () => void }) {
   const { t, lang } = useTranslations();
   const [requests, setRequests] = useState<PrivateRequestView[] | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch("/api/admin/requests", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await authFetch("/api/admin/requests", token, onLogout);
+    if (res.status === 401) return;
     const data = await res.json();
     setRequests(Array.isArray(data) ? data : []);
   }
@@ -506,19 +535,18 @@ interface DayStat {
   tokens: number;
 }
 
-function StatsTab({ token }: { token: string }) {
+function StatsTab({ token, onLogout }: { token: string; onLogout: () => void }) {
   const { t, lang } = useTranslations();
   const [stats, setStats] = useState<DayStat[] | null>(null);
 
   useEffect(() => {
     (async () => {
-      const res = await fetch("/api/admin/stats", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await authFetch("/api/admin/stats", token, onLogout);
+      if (res.status === 401) return;
       const data = await res.json();
       setStats(Array.isArray(data) ? data : []);
     })();
-  }, [token]);
+  }, [token, onLogout]);
 
   if (!stats) {
     return <p className="py-12 text-center text-sm text-muted">{t("admin.loading")}</p>;
@@ -563,16 +591,15 @@ function StatsTab({ token }: { token: string }) {
 
 // ---------------------------------------------------------------------------
 
-function BlacklistTab({ token }: { token: string }) {
+function BlacklistTab({ token, onLogout }: { token: string; onLogout: () => void }) {
   const { t } = useTranslations();
   const [list, setList] = useState<string[] | null>(null);
   const [input, setInput] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
-    const res = await fetch("/api/admin/blacklist", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await authFetch("/api/admin/blacklist", token, onLogout);
+    if (res.status === 401) return;
     const data = await res.json();
     setList(Array.isArray(data) ? data : []);
   }
@@ -587,11 +614,11 @@ function BlacklistTab({ token }: { token: string }) {
     const id = input.trim();
     if (!id) return;
     setMessage(null);
-    const res = await fetch("/api/admin/blacklist", {
+    const res = await authFetch("/api/admin/blacklist", token, onLogout, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ id }),
     });
+    if (res.status === 401) return;
     const data = await res.json();
     if (data?.blacklist) setList(data.blacklist);
     setInput("");
@@ -599,11 +626,11 @@ function BlacklistTab({ token }: { token: string }) {
 
   async function handleRemove(id: string) {
     setMessage(null);
-    const res = await fetch("/api/admin/blacklist", {
+    const res = await authFetch("/api/admin/blacklist", token, onLogout, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ id }),
     });
+    if (res.status === 401) return;
     const data = await res.json();
     if (data?.blacklist) setList(data.blacklist);
   }
@@ -654,6 +681,181 @@ function BlacklistTab({ token }: { token: string }) {
       )}
 
       {message && <p className="text-sm text-muted">{message}</p>}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+
+interface ProjectStat {
+  projectId: string;
+  count: number;
+}
+
+function CodeKbTab({ token, onLogout }: { token: string; onLogout: () => void }) {
+  const { t } = useTranslations();
+  const [projects, setProjects] = useState<ProjectStat[] | null>(null);
+  const [configured, setConfigured] = useState(true);
+  const [url, setUrl] = useState("");
+  const [ingesting, setIngesting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function load() {
+    const res = await authFetch("/api/ingest", token, onLogout);
+    if (res.status === 401) return;
+    const data = await res.json();
+    setConfigured(data.configured !== false);
+    setProjects(Array.isArray(data.projects) ? data.projects : []);
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  async function ingestUrl(e: FormEvent) {
+    e.preventDefault();
+    if (!url.trim()) return;
+    setIngesting(true);
+    setMessage(null);
+    try {
+      const res = await authFetch("/api/ingest", token, onLogout, {
+        method: "POST",
+        body: JSON.stringify({ url }),
+      });
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        setMessage(data?.message ?? t("chat.networkError"));
+      } else {
+        setMessage(t("admin.codekb.result", { projectId: data.projectId, count: data.chunks }));
+        setUrl("");
+        load();
+      }
+    } catch {
+      setMessage(t("chat.networkError"));
+    } finally {
+      setIngesting(false);
+    }
+  }
+
+  async function ingestZip(e: FormEvent) {
+    e.preventDefault();
+    const file = fileRef.current?.files?.[0];
+    if (!file) return;
+    setIngesting(true);
+    setMessage(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await authFetch("/api/ingest", token, onLogout, {
+        method: "POST",
+        body: form,
+      });
+      if (res.status === 401) return;
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        setMessage(data?.message ?? t("chat.networkError"));
+      } else {
+        setMessage(t("admin.codekb.result", { projectId: data.projectId, count: data.chunks }));
+        if (fileRef.current) fileRef.current.value = "";
+        load();
+      }
+    } catch {
+      setMessage(t("chat.networkError"));
+    } finally {
+      setIngesting(false);
+    }
+  }
+
+  async function remove(projectId: string) {
+    const res = await authFetch("/api/ingest", token, onLogout, {
+      method: "DELETE",
+      body: JSON.stringify({ projectId }),
+    });
+    if (res.status === 401) return;
+    load();
+  }
+
+  if (!projects) {
+    return <p className="py-12 text-center text-sm text-muted">{t("admin.loading")}</p>;
+  }
+
+  if (!configured) {
+    return <p className="py-12 text-center text-sm text-muted">{t("admin.codekb.notConfigured")}</p>;
+  }
+
+  const inputCls =
+    "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary";
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted">{t("admin.codekb.subtitle")}</p>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={ingestUrl} className="space-y-3 rounded-xl border border-border p-4">
+          <label className="text-sm font-medium">{t("admin.codekb.githubUrl")}</label>
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://github.com/owner/repo"
+            className={inputCls}
+          />
+          <button
+            type="submit"
+            disabled={ingesting}
+            className="w-full rounded-lg bg-primary py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
+          >
+            {ingesting ? t("admin.codekb.ingesting") : t("admin.codekb.ingest")}
+          </button>
+        </form>
+
+        <form onSubmit={ingestZip} className="space-y-3 rounded-xl border border-border p-4">
+          <label className="text-sm font-medium">{t("admin.codekb.orZip")}</label>
+          <input ref={fileRef} type="file" accept=".zip" className="text-sm" />
+          <button
+            type="submit"
+            disabled={ingesting}
+            className="w-full rounded-lg border border-border py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50"
+          >
+            {ingesting ? t("admin.codekb.ingesting") : t("admin.codekb.upload")}
+          </button>
+        </form>
+      </div>
+
+      {message && <p className="text-sm text-muted">{message}</p>}
+
+      <div>
+        <h3 className="text-base font-semibold">{t("admin.codekb.projects")}</h3>
+        {projects.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted">{t("admin.codekb.empty")}</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {projects.map((p) => (
+              <div
+                key={p.projectId}
+                className="flex items-center justify-between rounded-lg border border-border px-4 py-2.5"
+              >
+                <div>
+                  <span className="font-mono text-sm">{p.projectId}</span>
+                  <span className="ml-3 text-xs text-muted">
+                    {t("admin.codekb.chunks", { count: p.count })}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => remove(p.projectId)}
+                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  {t("admin.codekb.delete")}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
