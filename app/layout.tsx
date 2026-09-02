@@ -11,10 +11,10 @@ import ClientHydration from "@/components/ClientHydration";
 
 export const metadata: Metadata = {
   title: {
-    default: "个人作品集",
-    template: "%s | 个人作品集",
+    default: "Personal Portfolio",
+    template: "%s | Personal Portfolio",
   },
-  description: "个人作品集与 AI 助手 —— 展示经历、项目与技能，并提供智能问答与私聊申请。",
+  description: "Personal portfolio with AI assistant — showcasing experience, projects, and skills, along with intelligent Q&A and private chat requests.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
