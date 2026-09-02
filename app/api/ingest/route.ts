@@ -36,13 +36,13 @@ export async function POST(request: Request) {
   if (!isAuthorized(request)) return unauthorized();
   if (!isJinaConfigured()) {
     return Response.json(
-      { ok: false, message: "JINA_API_KEY 未配置 / not configured" },
+      { ok: false, message: "JINA_API_KEY not configured" },
       { status: 400 },
     );
   }
   if (!isVectorStoreConfigured()) {
     return Response.json(
-      { ok: false, message: "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY 未配置 / not configured" },
+      { ok: false, message: "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not configured" },
       { status: 400 },
     );
   }
@@ -59,11 +59,11 @@ export async function POST(request: Request) {
       projectId = String(form.get("projectId") ?? "").trim();
 
       if (!(file instanceof File)) {
-        return Response.json({ ok: false, message: "未收到 zip 文件 / no zip file" }, { status: 400 });
+        return Response.json({ ok: false, message: "No zip file received." }, { status: 400 });
       }
       if (file.size > MAX_ZIP_BYTES) {
         return Response.json(
-          { ok: false, message: "zip 文件过大（限 3MB）/ zip too large (max 3MB)" },
+          { ok: false, message: "Zip file too large (max 3MB)." },
           { status: 400 },
         );
       }
@@ -89,11 +89,11 @@ export async function POST(request: Request) {
       const body = (await request.json()) as { url?: string };
       const url = typeof body.url === "string" ? body.url.trim() : "";
       if (!url) {
-        return Response.json({ ok: false, message: "缺少 GitHub URL / missing GitHub URL" }, { status: 400 });
+        return Response.json({ ok: false, message: "Missing GitHub URL." }, { status: 400 });
       }
       const parsed = parseGitHubUrl(url);
       if (!parsed) {
-        return Response.json({ ok: false, message: "GitHub URL 格式不正确 / invalid GitHub URL" }, { status: 400 });
+        return Response.json({ ok: false, message: "Invalid GitHub URL." }, { status: 400 });
       }
       projectId = `${parsed.owner}/${parsed.repo}`;
       files = await fetchRepoFiles(parsed.owner, parsed.repo);
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 
     if (files.length === 0) {
       return Response.json(
-        { ok: false, message: "未找到可入库的代码/文档文件 / no code/doc files found" },
+        { ok: false, message: "No code/doc files found." },
         { status: 400 },
       );
     }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       chunks.push(...chunkFile({ projectId, path: f.path, content: f.content }));
     }
     if (chunks.length === 0) {
-      return Response.json({ ok: false, message: "分块后无内容 / nothing after chunking" }, { status: 400 });
+      return Response.json({ ok: false, message: "Nothing after chunking." }, { status: 400 });
     }
 
     // 向量化 / embed
@@ -138,9 +138,9 @@ export async function POST(request: Request) {
 
     return Response.json({ ok: true, projectId, chunks: chunks.length });
   } catch (err) {
-    console.error("[ingest] 入库失败 / ingest failed:", err);
+    console.error("[ingest] ingest failed:", err);
     return Response.json(
-      { ok: false, message: err instanceof Error ? err.message : "入库失败 / ingest failed" },
+      { ok: false, message: err instanceof Error ? err.message : "ingest failed" },
       { status: 500 },
     );
   }
@@ -166,19 +166,19 @@ export async function GET(request: Request) {
 export async function DELETE(request: Request) {
   if (!isAuthorized(request)) return unauthorized();
   if (!isVectorStoreConfigured()) {
-    return Response.json({ ok: false, message: "未配置 / not configured" }, { status: 400 });
+    return Response.json({ ok: false, message: "Not configured." }, { status: 400 });
   }
 
   let body: { projectId?: string };
   try {
     body = (await request.json()) as { projectId?: string };
   } catch {
-    return Response.json({ ok: false, message: "请求体不是有效的 JSON。" }, { status: 400 });
+    return Response.json({ ok: false, message: "Request body is not valid JSON." }, { status: 400 });
   }
 
   const projectId = typeof body.projectId === "string" ? body.projectId.trim() : "";
   if (!projectId) {
-    return Response.json({ ok: false, message: "缺少 projectId / missing projectId" }, { status: 400 });
+    return Response.json({ ok: false, message: "Missing projectId." }, { status: 400 });
   }
 
   await getVectorStore().deleteByProject(projectId);

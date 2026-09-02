@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AdminPanel from "@/components/admin/AdminPanel";
 
 export const metadata: Metadata = {
-  title: "后台管理",
+  title: "Admin Panel",
 };
 
 export default function AdminPage() {

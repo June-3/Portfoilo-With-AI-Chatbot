@@ -4,7 +4,7 @@ import ProjectsContent from "@/components/portfolio/ProjectsContent";
 import { getProjects } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "项目作品",
+  title: "Projects",
 };
 
 export default async function ProjectsPage() {

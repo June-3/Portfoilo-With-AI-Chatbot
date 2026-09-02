@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     body = (await request.json()) as RequestBody;
   } catch {
     return Response.json(
-      { ok: false, message: "请求体不是有效的 JSON。" },
+      { ok: false, message: "Request body is not valid JSON." },
       { status: 400 },
     );
   }
@@ -26,12 +26,12 @@ export async function POST(request: Request) {
   const consent = body.consent === true;
 
   if (!EMAIL_RE.test(email)) {
-    return Response.json({ ok: false, message: "邮箱格式不正确。" }, { status: 400 });
+    return Response.json({ ok: false, message: "Invalid email format." }, { status: 400 });
   }
 
   if (!consent) {
     return Response.json(
-      { ok: false, message: "请先勾选同意隐私政策。" },
+      { ok: false, message: "Please check the consent checkbox." },
       { status: 400 },
     );
   }
@@ -80,8 +80,8 @@ export async function POST(request: Request) {
       ],
     });
   } else {
-    console.log("[private-request] 未配置 OWNER_EMAIL，跳过站长通知邮件");
+    console.log("[private-request] OWNER_EMAIL not configured, skipping owner notification email");
   }
 
-  return Response.json({ ok: true, message: "已发送，请查收邮件。" });
+  return Response.json({ ok: true, message: "Sent. Please check your email." });
 }

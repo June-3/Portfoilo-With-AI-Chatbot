@@ -28,7 +28,7 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as SettingsUpdate;
   } catch {
-    return Response.json({ ok: false, message: "请求体不是有效的 JSON。" }, { status: 400 });
+    return Response.json({ ok: false, message: "Request body is not valid JSON." }, { status: 400 });
   }
 
   await hydrateSettings();

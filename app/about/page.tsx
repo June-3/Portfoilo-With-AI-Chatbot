@@ -4,7 +4,7 @@ import AboutContent from "@/components/portfolio/AboutContent";
 import { getExperience, getProfile } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "关于我",
+  title: "About me",
 };
 
 export default async function AboutPage() {

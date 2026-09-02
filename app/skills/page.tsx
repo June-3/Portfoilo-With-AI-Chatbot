@@ -4,7 +4,7 @@ import SkillsContent from "@/components/portfolio/SkillsContent";
 import { getExperience, getSkills } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "技能 / 经历",
+  title: "Skills / Experience",
 };
 
 export default async function SkillsPage() {
