@@ -23,7 +23,7 @@ export default function Avatar({
         width={size}
         height={size}
         onError={() => setHasError(true)}
-        className="rounded-full object-cover"
+        className="glow-ring rounded-full object-cover"
         style={{ width: size, height: size }}
       />
     );
@@ -31,12 +31,12 @@ export default function Avatar({
 
   return (
     <div
-      className="flex items-center justify-center rounded-full font-semibold text-primary-foreground"
+      className="glow-ring flex items-center justify-center rounded-full font-semibold text-white"
       style={{
         width: size,
         height: size,
         fontSize: Math.round(size * 0.4),
-        background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+        background: "linear-gradient(135deg, #0e639c, #4fc1ff)",
       }}
     >
       {initial}

@@ -2,16 +2,34 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bot, CircleCheck, Languages, LogIn, Menu, User, X } from "lucide-react";
+import {
+  Bot,
+  CircleCheck,
+  Code2,
+  Folder,
+  Home,
+  Languages,
+  LogIn,
+  Menu,
+  User,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useAppStore } from "@/store/app-store";
 import { useTranslations } from "@/lib/use-translations";
 import { cn } from "@/lib/utils";
 
-const navLinks = [
-  { href: "/", key: "nav.home" },
-  { href: "/about", key: "nav.about" },
-  { href: "/projects", key: "nav.projects" },
-  { href: "/skills", key: "nav.skills" },
+interface NavLink {
+  href: string;
+  key: string;
+  Icon: LucideIcon;
+}
+
+const navLinks: NavLink[] = [
+  { href: "/", key: "nav.home", Icon: Home },
+  { href: "/about", key: "nav.about", Icon: User },
+  { href: "/projects", key: "nav.projects", Icon: Folder },
+  { href: "/skills", key: "nav.skills", Icon: Code2 },
 ];
 
 export default function Navbar() {
@@ -28,76 +46,83 @@ export default function Navbar() {
   const languageLabel = lang === "zh" ? "EN" : "中文";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur">
+    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        {/* 品牌 / brand */}
         <Link
           href="/"
           onClick={closeMobileMenu}
-          className="flex items-center gap-2 font-semibold"
+          className="group flex items-center gap-2.5 font-bold"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Bot className="h-5 w-5" />
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm text-white shadow-[0_0_16px_rgba(55,148,255,0.5)] transition-transform group-hover:scale-105"
+            style={{ background: "linear-gradient(135deg, #0e639c, #4fc1ff)" }}
+          >
+            <Code2 style={{ width: 18, height: 18 }} />
           </span>
-          <span>{t("nav.brand")}</span>
+          <span className="text-[#f5f1fc]">{t("nav.brand")}</span>
         </Link>
 
         {/* 桌面端导航 / Desktop nav */}
-        <div className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => {
-            const active = pathname === link.href;
+        <div className="hidden items-center gap-0.5 md:flex">
+          {navLinks.map(({ href, key, Icon }) => {
+            const active = pathname === href;
             return (
               <Link
-                key={link.href}
-                href={link.href}
+                key={href}
+                href={href}
                 className={cn(
-                  "rounded-md px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent hover:text-foreground",
-                  active && "bg-accent text-foreground",
+                  "nav-link-dev inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-muted transition-colors hover:text-white",
+                  active && "is-active text-white",
                 )}
               >
-                {t(link.key)}
+                <Icon className="h-4 w-4" />
+                {t(key)}
               </Link>
             );
           })}
 
-          <button
-            type="button"
-            onClick={openChat}
-            className="ml-2 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-hover"
-          >
-            <Bot className="h-4 w-4" />
-            {t("nav.aiAssistant")}
-          </button>
-
-          {user.hasSubmittedRequest ? (
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
-              <CircleCheck className="h-4 w-4" />
-              {t("nav.submitted")}
-            </span>
-          ) : user.isLoggedIn ? (
-            <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted">
-              <User className="h-4 w-4" />
-              {t("nav.loggedIn")}
-            </span>
-          ) : (
+          <div className="ml-3 flex items-center gap-2">
             <button
               type="button"
-              onClick={openLogin}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              onClick={openChat}
+              className="btn-grad rounded-full px-4 py-2 text-sm font-bold"
             >
-              <LogIn className="h-4 w-4" />
-              {t("nav.emailLogin")}
+              <Bot className="h-4 w-4" />
+              {t("nav.aiAssistant")}
             </button>
-          )}
 
-          <button
-            type="button"
-            onClick={toggleLanguage}
-            className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent hover:text-foreground"
-            aria-label="Switch language"
-          >
-            <Languages className="h-4 w-4" />
-            {languageLabel}
-          </button>
+            {user.hasSubmittedRequest ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-2 text-sm font-medium text-emerald-200">
+                <CircleCheck className="h-4 w-4" />
+                {t("nav.submitted")}
+              </span>
+            ) : user.isLoggedIn ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-2 text-sm font-medium text-muted">
+                <User className="h-4 w-4" />
+                {t("nav.loggedIn")}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={openLogin}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-[#4fc1ff] hover:bg-accent hover:text-white"
+              >
+                <LogIn className="h-4 w-4" />
+                {t("nav.emailLogin")}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-sm font-semibold text-muted transition-colors hover:border-[#4fc1ff] hover:bg-accent hover:text-white"
+              aria-label="Switch language"
+            >
+              <Languages className="h-4 w-4" />
+              {languageLabel}
+            </button>
+          </div>
         </div>
 
         {/* 移动端汉堡按钮 / Mobile hamburger */}
@@ -113,42 +138,45 @@ export default function Navbar() {
 
       {/* 移动端下拉菜单 / Mobile dropdown menu */}
       {isMobileMenuOpen && (
-        <div className="border-t border-border md:hidden">
-          <div className="mx-auto max-w-6xl space-y-1 px-4 py-3 sm:px-6">
-            {navLinks.map((link) => {
-              const active = pathname === link.href;
+        <div className="border-t border-border/70 bg-background/95 backdrop-blur-xl md:hidden">
+          <div className="mx-auto max-w-6xl space-y-1 px-4 py-4 sm:px-6">
+            {navLinks.map(({ href, key, Icon }) => {
+              const active = pathname === href;
               return (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  key={href}
+                  href={href}
                   onClick={closeMobileMenu}
                   className={cn(
-                    "block rounded-md px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-accent hover:text-foreground",
-                    active && "bg-accent text-foreground",
+                    "flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-accent hover:text-white",
+                    active && "bg-accent text-white",
                   )}
                 >
-                  {t(link.key)}
+                  <Icon className="h-4 w-4 text-[#4fc1ff]" />
+                  {t(key)}
                 </Link>
               );
             })}
+
             <button
               type="button"
               onClick={() => {
                 closeMobileMenu();
                 openChat();
               }}
-              className="flex w-full items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+              className="btn-grad mt-2 w-full rounded-full px-3 py-2.5 text-sm font-bold"
             >
               <Bot className="h-4 w-4" />
               {t("nav.aiAssistant")}
             </button>
+
             {user.hasSubmittedRequest ? (
-              <span className="flex w-full items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+              <span className="flex w-full items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-2.5 text-sm font-medium text-emerald-200">
                 <CircleCheck className="h-4 w-4" />
                 {t("nav.submitted")}
               </span>
             ) : user.isLoggedIn ? (
-              <span className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted">
+              <span className="flex w-full items-center gap-2 rounded-full border border-border px-3 py-2.5 text-sm font-medium text-muted">
                 <User className="h-4 w-4" />
                 {t("nav.loggedIn")}
               </span>
@@ -159,16 +187,17 @@ export default function Navbar() {
                   closeMobileMenu();
                   openLogin();
                 }}
-                className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium"
+                className="flex w-full items-center gap-2 rounded-full border border-border px-3 py-2.5 text-sm font-semibold"
               >
                 <LogIn className="h-4 w-4" />
                 {t("nav.emailLogin")}
               </button>
             )}
+
             <button
               type="button"
               onClick={toggleLanguage}
-              className="flex w-full items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-medium text-muted"
+              className="flex w-full items-center gap-2 rounded-full border border-border px-3 py-2.5 text-sm font-semibold text-muted"
             >
               <Languages className="h-4 w-4" />
               {languageLabel}

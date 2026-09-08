@@ -36,7 +36,7 @@ export default function SocialLinks({
   if (items.length === 0) return null;
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+    <div className={cn("flex flex-wrap items-center gap-3.5", className)}>
       {items.map(({ href, label, Icon, external }) => (
         <a
           key={label}
@@ -44,7 +44,8 @@ export default function SocialLinks({
           aria-label={label}
           target={external ? "_blank" : undefined}
           rel={external ? "noopener noreferrer" : undefined}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-accent hover:text-foreground"
+          className="social-link"
+          title={label}
         >
           <Icon className="h-5 w-5" />
         </a>

@@ -1,15 +1,55 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   VS Code Dark+ inspired theme
+   --------------------------------------------------------------------------
+   WHERE TO EDIT COLORS / 在哪里改颜色和字体:
+
+   1) 主题色:都在下方 :root 变量里 ——
+      --background / --surface  -> 页面与卡片底色(改“亮暗”)
+      --foreground / --muted    -> 主文字 / 次要文字颜色
+      --primary / --primary-hover -> 按钮、链接等主要强调色(亮蓝)
+      --accent-hi               -> 高亮强调色(图标、装饰、小标题)
+      --border / --accent       -> 边框与“胶囊/悬停”淡色填充
+      --ring / --glow           -> 焦点环与发光色
+      另有一组 VS Code “语法色”: --code-blue/cyan/teal/green/orange/yellow/purple
+
+   2) 字体: --font-sans 变量 + 下方 body { font-family: var(--font-sans) }
+      (需要换 Google 字体时,在 app/layout.tsx 用 next/font/google 加载,
+       再把字体名填进这里的 --font-sans。)
+
+   3) 各装饰类(.btn-grad / .tech-chip / .social-link / .divider-glow ...)
+      的颜色也集中在本文件,搜索对应类名即可调整。
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
+  color-scheme: dark;
+
+  /* ---- VS Code Dark+ 基底 ---- */
+  --background: #1e1e1e; /* 编辑器底色(主背景) */
+  --surface: #252526; /* VS Code 面板色(卡片) */
+  --foreground: #dcdcdc; /* 编辑器前景文字 */
+  --muted: #a3a3a3; /* 次要文字 */
+  --primary: #3794ff; /* 链接/强调蓝 */
+  --primary-hover: #2b7ed6; /* 强调色悬停 */
   --primary-foreground: #ffffff;
-  --border: #e2e8f0;
-  --accent: #eef2ff;
-  --ring: #4f46e5;
+  --border: rgba(160, 160, 160, 0.28); /* 边框 */
+  --accent: rgba(55, 148, 255, 0.16); /* 胶囊/悬停淡填充 */
+  --ring: #4fc1ff;
+
+  /* ---- 高亮强调(亮蓝,替代原紫色) ---- */
+  --accent-hi: #4fc1ff;
+  --glow: rgba(79, 193, 255, 0.45);
+
+  /* ---- VS Code 语法高亮色(可按需引用) ---- */
+  --code-blue: #569cd6; /* 关键字蓝 */
+  --code-cyan: #4fc1ff; /* 亮蓝 */
+  --code-teal: #4ec9b0; /* 青绿 */
+  --code-green: #6a9955; /* 字符串绿 */
+  --code-orange: #ce9178; /* 数字橙 */
+  --code-yellow: #dcdcaa; /* 类名黄 */
+  --code-purple: #c586c0; /* 类型紫 */
+
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", "Noto Sans SC", sans-serif;
@@ -17,6 +57,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-primary: var(--primary);
@@ -28,12 +69,27 @@
   --font-sans: var(--font-sans);
 }
 
+html {
+  background: var(--background);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
 }
 
 /* 聊天「正在输入」指示点的动画 */
@@ -58,4 +114,310 @@ body {
 
 .typing-dot:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* ---------- Scrollbar(VS Code 风格滚动条) ---------- */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #252526;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 122, 204, 0.6);
+  border-radius: 12px;
+  border: 2px solid #252526;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 193, 255, 0.85);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 122, 204, 0.7) #252526;
+}
+
+::selection {
+  background: rgba(0, 122, 204, 0.45);
+  color: #fff;
+}
+
+/* ---------- Ambient fixed background(星点 + 蓝青色辉光,让页面更亮) ---------- */
+.bg-stage {
+  background:
+    radial-gradient(1000px 640px at 88% -8%, rgba(14, 122, 204, 0.16), transparent 62%),
+    radial-gradient(860px 660px at -8% 22%, rgba(78, 201, 176, 0.1), transparent 60%),
+    radial-gradient(1200px 820px at 50% 122%, rgba(86, 156, 214, 0.12), transparent 62%),
+    linear-gradient(180deg, #212121, #1e1e1e 40%, #1b1b1e);
+}
+.bg-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(156, 220, 254, 0.18) 1px, transparent 1.5px);
+  background-size: 30px 30px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 25%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 25%, #000 0%, transparent 78%);
+}
+
+/* ---------- Typography helpers ---------- */
+.purple {
+  color: var(--accent-hi);
+}
+
+.text-grad {
+  background-image: linear-gradient(100deg, #569cd6 0%, #4fc1ff 48%, #4ec9b0 115%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glow-text {
+  text-shadow: 0 0 26px var(--glow);
+}
+
+.kicker {
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--code-teal);
+}
+
+/* ---------- Buttons(VS Code 按钮蓝) ---------- */
+.btn-grad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #fff;
+  background-image: linear-gradient(120deg, #0e639c, #1177bb 48%, #3794ff);
+  background-size: 160% 160%;
+  background-position: 0% 0%;
+  box-shadow: 0 4px 18px -4px rgba(0, 122, 204, 0.45);
+  transition:
+    background-position 0.35s ease,
+    transform 0.25s ease,
+    box-shadow 0.35s ease;
+}
+.btn-grad:hover {
+  background-position: 95% 50%;
+  box-shadow: 0 10px 26px -6px rgba(79, 193, 255, 0.5);
+  transform: translateY(-1px);
+  color: #fff;
+}
+.btn-grad:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Nav links with animated underline ---------- */
+.nav-link-dev {
+  position: relative;
+}
+.nav-link-dev::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #4ec9b0, #3794ff);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.3s ease-out;
+}
+.nav-link-dev:hover::after,
+.nav-link-dev.is-active::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Tech pills(skill / project chips) ---------- */
+.tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  color: #d9f3ff;
+  border: 1px solid rgba(79, 193, 255, 0.5);
+  background: rgba(55, 148, 255, 0.1);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.tech-chip:hover {
+  border-color: #4fc1ff;
+  background: rgba(79, 193, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -6px rgba(55, 148, 255, 0.5);
+}
+
+/* ---------- Panels / cards ---------- */
+.panel {
+  border-radius: 1.1rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(165deg, #2b2b2d, #252526 45%, #232327);
+  box-shadow:
+    0 12px 34px -18px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.project-card-dev {
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.project-card-dev:hover {
+  transform: translateY(-6px);
+  border-color: rgba(79, 193, 255, 0.7);
+  box-shadow:
+    0 18px 46px -16px rgba(14, 122, 204, 0.55),
+    0 0 0 1px rgba(79, 193, 255, 0.25);
+}
+
+/* ---------- Social circular buttons ---------- */
+.social-link {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(79, 193, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  color: #d2d2d2;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+.social-link:hover {
+  transform: translateY(-3px);
+  color: #fff;
+  border-color: #4fc1ff;
+  background: rgba(79, 193, 255, 0.18);
+  box-shadow: 0 0 20px rgba(79, 193, 255, 0.55);
+}
+
+/* ---------- Avatar glow ring ---------- */
+.glow-ring {
+  box-shadow:
+    0 0 0 6px rgba(79, 193, 255, 0.09),
+    0 0 0 15px rgba(79, 193, 255, 0.06),
+    0 0 44px rgba(0, 122, 204, 0.45);
+}
+
+/* ---------- Hero art / wave ---------- */
+.hero-art {
+  animation: float-y 7s ease-in-out infinite;
+}
+.hero-art img {
+  width: 100%;
+  height: auto;
+}
+
+.wave {
+  display: inline-block;
+  animation: wave-animation 2.2s infinite;
+  transform-origin: 70% 70%;
+}
+@keyframes wave-animation {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(14deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  30% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+  60% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+.type-caret {
+  display: inline-block;
+  width: 0.12em;
+  margin-left: 0.12em;
+  color: var(--code-teal);
+  animation: caret-blink 1s step-end infinite;
+}
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Card header ornaments ---------- */
+.divider-glow {
+  height: 4px;
+  width: 64px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #0e639c, #4fc1ff, transparent);
+}
+
+/* ---------- Timeline(VS Code 蓝青时间线) ---------- */
+.timeline-item {
+  position: relative;
+  padding-left: 1.75rem;
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1e1e1e;
+  border: 2px solid #3794ff;
+  box-shadow: 0 0 12px rgba(55, 148, 255, 0.7);
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-art,
+  .wave,
+  .type-caret,
+  .project-card-dev,
+  .social-link,
+  .tech-chip,
+  .btn-grad {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
 }

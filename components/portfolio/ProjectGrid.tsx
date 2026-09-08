@@ -39,17 +39,17 @@ export default function ProjectGrid({ projects }: { projects: Project[] }) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2.5">
         {categories.map((category) => (
           <button
             key={category}
             type="button"
             onClick={() => setActive(category)}
             className={cn(
-              "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+              "rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200",
               active === category
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted hover:bg-accent hover:text-foreground",
+                ? "btn-grad"
+                : "border border-border text-muted hover:border-[#4fc1ff]/70 hover:bg-accent hover:text-foreground",
             )}
           >
             {category === "all" ? t("projects.all") : category}
@@ -57,14 +57,14 @@ export default function ProjectGrid({ projects }: { projects: Project[] }) {
         ))}
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-9 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <p className="mt-10 text-center text-sm text-muted">{t("projects.empty")}</p>
+        <p className="mt-12 text-center text-sm text-muted">{t("projects.empty")}</p>
       )}
     </div>
   );

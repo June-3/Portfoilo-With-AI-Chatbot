@@ -109,11 +109,14 @@ export default function ChatWindow() {
   if (!isChatOpen) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex h-[540px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-xl">
+    <div className="fixed bottom-5 right-5 z-50 flex h-[540px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-[#4fc1ff]/30 bg-[#0f0c1f]/95 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.85),0_0_40px_-18px_rgba(55,148,255,0.6)] backdrop-blur-xl">
       {/* 头部 / Header */}
-      <div className="flex items-center justify-between border-b border-border bg-accent/50 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border bg-[#1c1436]/70 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-white shadow-[0_0_14px_rgba(55,148,255,0.5)]"
+            style={{ background: "linear-gradient(135deg, #0e639c, #4fc1ff)" }}
+          >
             <Bot className="h-5 w-5" />
           </span>
           <div>
@@ -165,9 +168,14 @@ export default function ChatWindow() {
               className={cn(
                 "max-w-[80%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm",
                 m.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-accent text-foreground",
+                  ? "text-white shadow-[0_4px_14px_-4px_rgba(55,148,255,0.6)]"
+                  : "border border-border/70 bg-[#1d1736]/80 text-foreground",
               )}
+              style={
+                m.role === "user"
+                  ? { background: "linear-gradient(135deg, #0e639c, #3794ff)" }
+                  : undefined
+              }
             >
               {m.content}
             </div>
@@ -181,7 +189,7 @@ export default function ChatWindow() {
 
         {isTyping && (
           <div className="flex justify-start">
-            <div className="flex items-center gap-1 rounded-2xl bg-accent px-4 py-3">
+            <div className="flex items-center gap-1 rounded-2xl border border-border/70 bg-[#1d1736]/80 px-4 py-3">
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
               <span className="typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
@@ -206,19 +214,19 @@ export default function ChatWindow() {
       {/* 输入区 / Input */}
       <form
         onSubmit={onSubmit}
-        className="flex items-center gap-2 border-t border-border px-3 py-2"
+        className="flex items-center gap-2 border-t border-border bg-black/20 px-3 py-2"
       >
         <input
           ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={t("chat.inputPlaceholder")}
-          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-[#4fc1ff]"
         />
         <button
           type="submit"
           disabled={isTyping || !input.trim()}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-colors hover:bg-primary-hover disabled:opacity-50"
+          className="btn-grad flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
           aria-label={t("chat.send")}
         >
           <Send className="h-4 w-4" />

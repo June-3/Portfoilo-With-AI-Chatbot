@@ -13,6 +13,9 @@ export interface Profile {
   title_en?: string;
   headline: string;
   headline_en?: string;
+  /** 打字机展示的角色标签 / Rotating role labels shown by the typewriter. */
+  roles?: string[];
+  roles_en?: string[];
   avatar?: string;
   bio: string;
   bio_en?: string;

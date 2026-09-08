@@ -27,19 +27,25 @@ const zh: TranslationDict = {
   "nav.closeMenu": "关闭菜单",
 
   // 首页 Hero / hero
+  "hero.greet": "你好！",
+  "hero.iam": "我是",
   "hero.contact": "联系我",
   "hero.viewProjects": "查看项目",
+  "hero.scroll": "向下滚动",
 
   // 联系方式 / contact
   "contact.title": "联系方式",
+  "contact.slogan": "一起打造点什么吧",
   "contact.subtitle": "欢迎通过以下方式联系我，我会尽快回复。",
 
   // 关于我 / about
   "about.title": "关于我",
+  "about.subtitle": "认识一下我",
   "about.education": "教育经历",
 
   // 项目 / projects
   "projects.title": "项目作品",
+  "projects.kicker": "作品展示",
   "projects.subtitle": "以下是我参与或主导的部分项目，可按分类筛选。",
   "projects.all": "全部",
   "projects.featured": "精选",
@@ -49,6 +55,7 @@ const zh: TranslationDict = {
 
   // 技能 / skills
   "skills.title": "技能 / 经历",
+  "skills.kicker": "技术栈与经历",
   "skills.subtitle": "我常用的技术栈与工具，以及工作与教育经历。",
   "skills.skills": "技能",
   "skills.timeline": "经历时间线",
@@ -198,16 +205,22 @@ const en: TranslationDict = {
   "nav.openMenu": "Open menu",
   "nav.closeMenu": "Close menu",
 
+  "hero.greet": "Hi There!",
+  "hero.iam": "I'M",
   "hero.contact": "Contact Me",
   "hero.viewProjects": "View Projects",
+  "hero.scroll": "Scroll down",
 
   "contact.title": "Contact",
+  "contact.slogan": "Let's Build Something Together",
   "contact.subtitle": "Feel free to reach out through the channels below — I'll reply as soon as I can.",
 
   "about.title": "About Me",
+  "about.subtitle": "Get To Know Me",
   "about.education": "Education",
 
   "projects.title": "Projects",
+  "projects.kicker": "My Recent Works",
   "projects.subtitle": "A selection of projects I've built or contributed to, filterable by category.",
   "projects.all": "All",
   "projects.featured": "Featured",
@@ -216,6 +229,7 @@ const en: TranslationDict = {
   "projects.empty": "No projects in this category yet.",
 
   "skills.title": "Skills / Experience",
+  "skills.kicker": "Tech Stack & Journey",
   "skills.subtitle": "My tech stack and tools, plus my work and education history.",
   "skills.skills": "Skills",
   "skills.timeline": "Timeline",
